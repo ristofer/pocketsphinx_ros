@@ -41,12 +41,12 @@ public:
 
 	void openDevice(std::string device_name)
 	{
-		ad_rect_t *ad;
-		if ((ad = ad_open_dev(device_name.c_str(),16000)) == NULL)
+		
+		if ((ad_ = ad_open_dev(device_name.c_str(),16000)) == NULL)
 		{
 			E_FATAL("Failed to open audio device\n");
 		}
-		ad_ = ad;
+		
 
 	}
 
@@ -99,38 +99,58 @@ public:
 	Recognizer(const AudioSource& as):
 		as_(as)
 	{
-		std::string modeldir = "/usr/local/share/pocketsphinx/model/en-us/en-us";
-		config = cmd_ln_init(NULL, ps_args(), TRUE,
-			"-hmm", modeldir.c_str(),
-			"-jsgf","/home/superminion/CMU/Stage2gpsr.jsgf",
-			"-dict","/home/superminion/CMU/0042.dic" ,
-			"-vad_threshold","2.0",	
+		
+		config_ = cmd_ln_init(NULL, ps_args(), TRUE,
+			"-hmm", modeldir_.c_str(),
+			"-jsgf",grammardir_.c_str(),
+			"-dict",dictdir_.c_str() ,
+			"-vad_threshold",threshold_.c_str(),	
 			"-remove_noise","yes",
 			NULL);
-		if (config == NULL)
+		if (config_ == NULL)
 		{
 			fprintf(stderr, "Failed to create config object, see log for details\n");
 			//return -1;
 		}
+
+		ps_ = ps_init(config_);
+		if (ps == NULL) 
+		{
+        	fprintf(stderr, "Failed to create recognizer, see log for details\n");
+        }
 	}
 
 	~Recognizer()
 	{
-		cmd_ln_free_r(config);
+		cmd_ln_free_r(config_);
+		ps_free(ps_);
 	}
 
 	std::string recognize()
 	{
+		uint8 utt_started, in_speech;
+		char const *hyp;
 		
-    for(;;){
-	    if ((k = ad_read(ad, adbuf, 2048)) < 0)
-	        E_FATAL("Failed to read audio\n");
-	    
-	    ps_process_raw(ps, adbuf, k, FALSE, FALSE);
-	    partial = ps_get_hyp(ps, NULL);
-	    ROS_WARN_STREAM(partial);
+		as_.openDevice("alsa_input.usb-M-Audio_Producer_USB-00-USB.analog-mono");
+	    as_.startRec()
 
-	    in_speech = ps_get_in_speech(ps);
+	    if (ps_start_utt(ps_) < 0)
+	    {
+        	E_FATAL("Failed to start utterance\n");
+   		}
+   		utt_started = FALSE;
+		E_INFO("Ready....\n");
+
+    
+    for(;;){
+	    
+
+	    as_.read()
+	    ps_process_raw(ps_, as_.buf(), as_.k(), FALSE, FALSE);
+	    partial_ = ps_get_hyp(ps_, NULL);
+	   
+
+	    in_speech = ps_get_in_speech(ps_);
 	    
 	    if (in_speech && !utt_started) {
 	        utt_started = TRUE;
@@ -141,22 +161,23 @@ public:
 
 	 	if (!in_speech && utt_started) {
 	        /* speech -> silence transition, time to start new utterance  */
-	        ps_end_utt(ps);
-	        hyp = ps_get_hyp(ps, NULL );
-	        if (hyp != NULL) {
-	            
-	            return std::string(hyp);
-	            
+	        ps_end_utt(ps_);
+	        
+	        hyp = ps_get_hyp(ps_, NULL );
+	        
+	        if (hyp != NULL) 
+	        {
+	        	return std::string(hyp);
 	        }
 
-	        if (ps_start_utt(ps) < 0)
+	        if (ps_start_utt(ps_) < 0)
 	            E_FATAL("Failed to start utterance\n");
 	        utt_started = FALSE;
 	        E_INFO("Ready....\n");
 	    }
 	    sleep_msec(100);
     }
-    ad_close(ad);
+    as_.closeDevice()
  
 
     return std::string("");
@@ -167,5 +188,12 @@ private:
 	int16_t buf_[2048];
 	ps_decoder_t *ps_;
 	cmd_ln_t *config_;
+	std::string modeldir_
+	std::string grammardir_
+	std::string dictdir_
+	std::string threshold_
+	std::string partial_
+
+
 };
 
