@@ -57,8 +57,8 @@ public:
 		std::string modeldir = "/usr/local/share/pocketsphinx/model/en-us/en-us";
 		config = cmd_ln_init(NULL, ps_args(), TRUE,
 			"-hmm", modeldir.c_str(),
-			"-jsgf","/home/superminion/CMU/Stage2gpsr.jsgf",
-			"-dict","/home/superminion/CMU/0042.dic" ,
+			"-jsgf","/home/bender/bender_ws/soft_ws/src/bender_hri/bender_speech/Grammar/Stage1/gpsr/Stage2gpsr.jsgf",
+			"-dict","/home/bender/bender_ws/soft_ws/src/bender_hri/bender_speech/Grammar/Stage1/gpsr/6759.dic" ,
 			"-vad_threshold","2.0",	
 			"-remove_noise","yes",
 			NULL);
@@ -96,7 +96,7 @@ std::string recognize_from_microphone()
     int32 k;
     char const *hyp, *partial;
 
-    if ((ad = ad_open_dev("alsa_input.usb-M-Audio_Producer_USB-00-USB.analog-mono",16000)) == NULL)
+    if ((ad = ad_open_dev("alsa_input.usb-M-Audio_Producer_USB-00-USB.analog-stereo",16000)) == NULL)
         E_FATAL("Failed to open audio device\n");
     if (ad_start_rec(ad) < 0)
         E_FATAL("Failed to start recording\n");
@@ -161,10 +161,10 @@ main(int argc, char *argv[])
 
     config = cmd_ln_init(NULL, ps_args(), TRUE,
                  "-hmm", modeldir.c_str(),
-   "/home/bender/bender_ws/soft_ws/src/bender_hri/bender_speech/Grammar/Stage1/gpsr/Stage2gpsr.jsgf",
-		"/home/bender/bender_ws/soft_ws/src/bender_hri/bender_speech/Grammar/Stage1/gpsr/6759.dic",
-		"-vad_threshold","3.0",	
-		"-remove_noise","yes",
+                 	"-jsgf","/home/bender/bender_ws/soft_ws/src/bender_hri/bender_speech/Grammar/Stage1/gpsr/Stage2gpsr.jsgf",
+			"-dict","/home/bender/bender_ws/soft_ws/src/bender_hri/bender_speech/Grammar/Stage1/gpsr/6759.dic" ,
+			"-vad_threshold","2.0",	
+			"-remove_noise","yes",
                  NULL);
     if (config == NULL) {
         fprintf(stderr, "Failed to create config object, see log for details\n");

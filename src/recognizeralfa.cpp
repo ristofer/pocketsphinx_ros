@@ -152,11 +152,11 @@ public:
 		ps_end_utt(ps_);
 	}
 
-	std::string getHyp()
+	const char*  getHyp()
 	{
-		 char const *hyp;
+		 const char  *hyp;
 		 hyp = ps_get_hyp(ps_, NULL);
-		 return std::string(hyp);
+		 return hyp;
 	}
 
 	bool inSpeech()
@@ -233,13 +233,13 @@ public:
 		E_INFO("Ready....\n");
 
     
-    while(is_on_){
+    while(1){
 	    
 
 	    recognizer_.readAudio();
 	    recognizer_.proccesRaw();
-	    partial_result_.data = recognizer_.getHyp();
-	    
+	    partial_result_= recognizer_.getHyp();
+	    ROS_INFO_STREAM(partial_result_);
 	   
 
 	    in_speech_ = recognizer_.inSpeech();
@@ -257,9 +257,10 @@ public:
 	        
 	        recognizer_.endUtt();
 	        
-	        final_result_.data= recognizer_.getHyp();
 	        
-	        if (final_result_.data.c_str() != NULL) 
+	        final_result_= recognizer_.getHyp();
+	        
+	        if (final_result_.c_str() != NULL) 
 	        {
 	        	
 	        	is_on_ = false;
@@ -274,8 +275,8 @@ public:
 
 private:
 
-	std_msgs::String final_result_;
-	std_msgs::String partial_result_;
+	std::string final_result_;
+	char const *partial_result_;
 	Recognizer recognizer_;
 	bool in_speech_;
 	bool is_on_;
@@ -293,14 +294,20 @@ int main(int argc, char *argv[])
 	
 
 	Recognizer recognizer(as,
-		"/home/bender/bender_ws/soft_ws/src/bender_hri/bender_speech/Grammar/Stage1/gpsr/6759.lm",
+		"/usr/local/share/pocketsphinx/model/en-us/en-us",
 		"/home/bender/bender_ws/soft_ws/src/bender_hri/bender_speech/Grammar/Stage1/gpsr/Stage2gpsr.jsgf",
 		"/home/bender/bender_ws/soft_ws/src/bender_hri/bender_speech/Grammar/Stage1/gpsr/6759.dic",
 		"2.0");
 	RecognizerROS r(recognizer);
-	r.recognize();
 	
-	ros::spin();
+	
+		
+	
+		
+	r.recognize();
+	ros::spinOnce();
+	
+	
 	loop_rate.sleep();
 
 	return 0;
