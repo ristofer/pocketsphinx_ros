@@ -161,8 +161,8 @@ main(int argc, char *argv[])
 
     config = cmd_ln_init(NULL, ps_args(), TRUE,
                  "-hmm", modeldir.c_str(),
-                 "-jsgf","/home/superminion/CMU/Stage2gpsr.jsgf",
-                 "-dict","/home/superminion/CMU/0042.dic" ,
+   "/home/bender/bender_ws/soft_ws/src/bender_hri/bender_speech/Grammar/Stage1/gpsr/Stage2gpsr.jsgf",
+		"/home/bender/bender_ws/soft_ws/src/bender_hri/bender_speech/Grammar/Stage1/gpsr/6759.dic",
 		"-vad_threshold","3.0",	
 		"-remove_noise","yes",
                  NULL);

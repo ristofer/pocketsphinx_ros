@@ -16,6 +16,22 @@
 #include "pocketsphinx.h"
 
 
+static void
+sleep_msec(int32 ms)
+{
+#if (defined(_WIN32) && !defined(GNUWINCE)) || defined(_WIN32_WCE)
+    Sleep(ms);
+#else
+    /* ------------------- Unix ------------------ */
+    struct timeval tmo;
+
+    tmo.tv_sec = 0;
+    tmo.tv_usec = ms * 1000;
+
+    select(0, NULL, NULL, NULL, &tmo);
+#endif
+}
+
 class AudioSource
 {
 private:
@@ -24,8 +40,8 @@ private:
 	int32 k_;
 
 public:
-	AudioSource();
-	~AudioSource();
+	AudioSource(){}
+	~AudioSource(){}
 
 	void openDevice(std::string device_name)
 	{
@@ -53,15 +69,15 @@ public:
 
 	}
 
-	int16_t buf()
+	int16_t* buf()
 	{
 		return buf_;
 	}
 
-	// ad_rect_t ad()
-	// {
-	// 	return ad_;
-	// }
+	ad_rec_t* ad()
+	{
+		return ad_;
+	}
 
 	int32 k()
 	{
@@ -79,14 +95,14 @@ public:
 class Recognizer
 {
 public:
-	Recognizer(const AudioSource& as, 
+	Recognizer(const AudioSource &as, 
 			   std::string modeldir, 
 			   std::string grammardir, 
 			   std::string dictdir, 
 			   std::string threshold):
 		as_(as),
 		modeldir_(modeldir),
-		grammardir_(grammardir)
+		grammardir_(grammardir),
 		dictdir_(dictdir),
 		threshold_(threshold)
 
@@ -106,7 +122,7 @@ public:
 		}
 
 		ps_ = ps_init(config_);
-		if (ps == NULL) 
+		if (ps_ == NULL) 
 		{
         	fprintf(stderr, "Failed to create recognizer, see log for details\n");
         }
@@ -143,7 +159,7 @@ public:
 		 return std::string(hyp);
 	}
 
-	bool inSpeech():
+	bool inSpeech()
 	{
 		if (ps_get_in_speech(ps_))
 		{
@@ -196,38 +212,19 @@ public:
 		recognizer_(recognizer)
 	{
 		is_on_ = false ;
-
-		output_pub_ = n_.advertise<std_msgs::String>("~output",1000);
-		partial_output_pub_ = n_.advertise<std_msgs::String>("~partial_output",1000);
-		start_service_ = n_.advertiseService("~start", &RecognizerROS::start, this);
-		stop_service_ = n_.advertiseService("~stop", &RecognizerROS::stop, this );
-		load_dictionary_service_ = n_.advertiseService("~load_dictionary", &);
-
-
-
 	}
 	~RecognizerROS()
 	{
 
 	}
 
-	void start(std_srvs::Empty::Request& request, std_srvs::Empty::Response& response)
-	{
-		is_on_ = true;
-		recognize() ;
-	}
-
-	void stop(std_srvs::Empty::Request& request, std_srvs::Empty::Response& response)
-	{
-		is_on_ = false ;
-	}
 
 	void recognize()
 	{
 		uint8 utt_started;
 		
 		
-		recognizer_.initDevice("alsa_input.usb-M-Audio_Producer_USB-00-USB.analog-mono");
+		recognizer_.initDevice("alsa_input.usb-M-Audio_Producer_USB-00-USB.analog-stereo");
 
 		recognizer_.startUtt();
    		
@@ -242,7 +239,7 @@ public:
 	    recognizer_.readAudio();
 	    recognizer_.proccesRaw();
 	    partial_result_.data = recognizer_.getHyp();
-	    partial_output_pub_.publish(partial_result_);
+	    
 	   
 
 	    in_speech_ = recognizer_.inSpeech();
@@ -264,27 +261,24 @@ public:
 	        
 	        if (final_result_.data.c_str() != NULL) 
 	        {
-	        	output_pub_.publish(final_result_);
+	        	
 	        	is_on_ = false;
 	        	break ;
 	        }
 	    }
-	    recognition_loop_rate_.sleep();
+	    sleep_msec(100);
     }
     recognizer_.terminateDevice();
  
 	}
 
 private:
-	ros::NodeHandle n_;
-	ros::Publisher output_pub_, partial_output_pub_;
-	ros::ServiceServer start_service_,stop_service_,load_dictionary_service_;
-	ros::Rate recognition_loop_rate_(100);
+
 	std_msgs::String final_result_;
 	std_msgs::String partial_result_;
 	Recognizer recognizer_;
 	bool in_speech_;
-	bool is_on_
+	bool is_on_;
 	
 
 };
@@ -293,9 +287,18 @@ private:
 int main(int argc, char *argv[])
 {
 	ros::init(argc, argv, "talker");
+    ros::NodeHandle n;
 	ros::Rate loop_rate(10);
+	AudioSource as;
+	
 
-	RecognizerROS r;
+	Recognizer recognizer(as,
+		"/home/bender/bender_ws/soft_ws/src/bender_hri/bender_speech/Grammar/Stage1/gpsr/6759.lm",
+		"/home/bender/bender_ws/soft_ws/src/bender_hri/bender_speech/Grammar/Stage1/gpsr/Stage2gpsr.jsgf",
+		"/home/bender/bender_ws/soft_ws/src/bender_hri/bender_speech/Grammar/Stage1/gpsr/6759.dic",
+		"2.0");
+	RecognizerROS r(recognizer);
+	r.recognize();
 	
 	ros::spin();
 	loop_rate.sleep();
