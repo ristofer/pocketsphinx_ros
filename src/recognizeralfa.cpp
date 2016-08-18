@@ -1,4 +1,5 @@
 #include <ros/ros.h>
+#include <ros/package.h>
 
 #include <actionlib/server/simple_action_server.h>
 #include <pocketsphinx_ros/DoRecognitionAction.h>
@@ -212,6 +213,11 @@ public:
         init();
     }
 
+    bool status()
+    {
+        return init_state_;
+    }
+
 
     
     
@@ -220,11 +226,12 @@ private:
     int16_t buf_[2048];
     ps_decoder_t *ps_;
     cmd_ln_t *config_;
+    
     std::string modeldir_;
     std::string grammardir_;
     std::string dictdir_;
     std::string threshold_;
-    std::string partial_;
+    
     bool init_state_;
 
 
@@ -243,6 +250,8 @@ public:
         loop_rate_(100)
     {
         recognizer_->init();
+        action_server_.start();
+        pkg_dir_= ros::package::getPath("bender_speech");
         is_on_ = false;
     }
     ~RecognizerROS()
@@ -250,22 +259,45 @@ public:
 
     }
 
-    void executeCB(const pocketsphinx_ros::DoRecognitionGoalConstPtr &goal){
+    void executeCB(const pocketsphinx_ros::DoRecognitionGoalConstPtr &goal)
+    {
+        
+        std::string dictionary;
+        dictionary = goal->dictionary;
+        updateDirectories(dictionary);
+        recognizer_->setGrammar(grammardir_);
+        recognizer_->setDict(dictdir_);
+        recognizer_->update();
+        recognize();
 
 
     }
+
+    void updateDirectories(std::string dictionary)
+    {
+        std::stringstream ss;
+        std::stringstream jsgf;
+        std::stringstream dic;
+        ss << pkg_dir_ << "/Grammar/" << dictionary ;
+        std::string path = ss.str();
+        jsgf << path << ".jsgf" ;
+        dic << path << ".dic" ;
+        dictdir_ = dic.str();
+        grammardir_ = jsgf.str();
+    }
+
 
     void recognize()
     {
         uint8 utt_started;
         
-        
+        if (recognizer_->status() == false){return;}
         recognizer_->initDevice("alsa_input.usb-M-Audio_Producer_USB-00-USB.analog-stereo");
 
         recognizer_->startUtt();
         
         utt_started = FALSE;
-        E_INFO("Ready....\n");
+        ROS_INFO_STREAM("Ready....");
 
         
         while(1){
@@ -273,8 +305,8 @@ public:
 
             recognizer_->readAudio();
             recognizer_->proccesRaw();
-            partial_result_= recognizer_->getHyp();
-            ROS_INFO_STREAM(partial_result_);
+            feedback_.partial_result= recognizer_->getHyp();
+            action_server_.publishFeedback(feedback_);
            
 
             in_speech_ = recognizer_->inSpeech();
@@ -282,7 +314,7 @@ public:
             if (in_speech_ && !utt_started) 
             {
                 utt_started = TRUE;
-                E_INFO("Listening...\n");
+                ROS_INFO_STREAM("Listening...");
             }
            
             
@@ -291,10 +323,11 @@ public:
             {
                 
                 recognizer_->endUtt();
-                ROS_INFO_STREAM("ALO");
+                ROS_INFO_STREAM("Finishing");
                 
                 
-                final_result_= recognizer_->getHyp();
+                result_.final_result = recognizer_->getHyp();
+
                 break;
                /* if (final_result_ != NULL) 
                 {
@@ -308,7 +341,8 @@ public:
         }
         
         recognizer_->terminateDevice();
-        ROS_INFO_STREAM("HOLA");
+        action_server_.setSucceeded(result_);
+        
      
     }
 
@@ -320,8 +354,19 @@ private:
     pocketsphinx_ros::DoRecognitionFeedback feedback_;
     pocketsphinx_ros::DoRecognitionResult result_;
 
+    std::string pkg_dir_;
+
+
+
+    std::string modeldir_;
+    std::string grammardir_;
+    std::string dictdir_;
+    std::string threshold_;
+
     std::string final_result_;
     std::string partial_result_;
+    
+
     RecognizerPtr recognizer_;
     bool in_speech_;
     bool is_on_;
@@ -332,7 +377,7 @@ private:
 
 int main(int argc, char *argv[])
 {
-    ros::init(argc, argv, "talker");
+    ros::init(argc, argv, "recognizer");
     
     
     AudioSource as;
@@ -341,16 +386,18 @@ int main(int argc, char *argv[])
     RecognizerPtr recognizer( new Recognizer(&as,
         "/usr/local/share/pocketsphinx/model/en-us/en-us",
         "/home/bender/bender_ws/soft_ws/src/bender_hri/bender_speech/Grammar/Stage1/gpsr/Stage2gpsr.jsgf",
-        "/home/bender/bender_ws/soft_ws/src/bender_hri/bender_speech/Grammar/Stage1/gpsr/6759.dic",
+        "/home/bender/bender_ws/soft_ws/src/bender_hri/bender_speech/Grammar/Stage1/gpsr/Stage2gpsr.dic",
         "2.0"));
     
     RecognizerROS r(recognizer);
+
+
     
     
    
         
-    r.recognize();
-    ros::spinOnce();
+    
+    ros::spin();
     
     
     // loop_rate.sleep();
