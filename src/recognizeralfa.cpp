@@ -1,6 +1,8 @@
 #include <ros/ros.h>
-#include <std_msgs/String.h>
-#include <std_srvs/Empty.h>
+
+#include <actionlib/server/simple_action_server.h>
+#include <pocketsphinx_ros/DoRecognitionAction.h>
+
 
 #include <sstream>
 
@@ -90,12 +92,16 @@ public:
         modeldir_(modeldir),
         grammardir_(grammardir),
         dictdir_(dictdir),
-        threshold_(threshold){}
+        threshold_(threshold)
+        {
+            init_state_ = false;
+        }
 
     ~Recognizer()
     {
         cmd_ln_free_r(config_);
         ps_free(ps_);
+        init_state_ = false;
         
     }
 
@@ -120,6 +126,8 @@ public:
         {
             fprintf(stderr, "Failed to create recognizer, see log for details\n");
         }
+
+        init_state_ = true;
     }
 
     void startUtt()
@@ -179,6 +187,31 @@ public:
         as_->closeDevice();
     }
 
+    void setDict(const std::string& dictdir)
+    {
+        dictdir_ = dictdir;
+    }
+
+    void setGrammar(const std::string& grammardir)
+    {
+        grammardir_ = grammardir;
+    }
+
+    void setThreshold(const std::string& threshold)
+    {
+        threshold_ = threshold;
+    }
+
+    void update()
+    {
+        if(init_state_){
+        cmd_ln_free_r(config_);
+        ps_free(ps_);
+        init_state_ = false;
+        }
+        init();
+    }
+
 
     
     
@@ -192,6 +225,7 @@ private:
     std::string dictdir_;
     std::string threshold_;
     std::string partial_;
+    bool init_state_;
 
 
 
@@ -205,6 +239,7 @@ class RecognizerROS
 public:
     RecognizerROS(RecognizerPtr recognizer):
         recognizer_(recognizer),
+        action_server_(nh_, "recognizer", boost::bind(&RecognizerROS::executeCB, this, _1), false),
         loop_rate_(100)
     {
         recognizer_->init();
@@ -215,6 +250,10 @@ public:
 
     }
 
+    void executeCB(const pocketsphinx_ros::DoRecognitionGoalConstPtr &goal){
+
+
+    }
 
     void recognize()
     {
@@ -274,8 +313,13 @@ public:
     }
 
 private:
-    ros::NodeHandle n_;
+    ros::NodeHandle nh_;
     ros::Rate loop_rate_;
+    actionlib::SimpleActionServer<pocketsphinx_ros::DoRecognitionAction> action_server_;
+
+    pocketsphinx_ros::DoRecognitionFeedback feedback_;
+    pocketsphinx_ros::DoRecognitionResult result_;
+
     std::string final_result_;
     std::string partial_result_;
     RecognizerPtr recognizer_;
