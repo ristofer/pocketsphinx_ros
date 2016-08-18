@@ -16,78 +16,64 @@
 #include "pocketsphinx.h"
 
 
-static void
-sleep_msec(int32 ms)
-{
-#if (defined(_WIN32) && !defined(GNUWINCE)) || defined(_WIN32_WCE)
-    Sleep(ms);
-#else
-    /* ------------------- Unix ------------------ */
-    struct timeval tmo;
 
-    tmo.tv_sec = 0;
-    tmo.tv_usec = ms * 1000;
-
-    select(0, NULL, NULL, NULL, &tmo);
-#endif
-}
 
 class AudioSource
 {
 private:
-	int16_t buf_[2048];
-	ad_rec_t *ad_;
-	int32 k_;
+    int16_t buf_[2048];
+    ad_rec_t *ad_;
+    int32 k_;
 
 public:
-	AudioSource(){}
-	~AudioSource(){}
-
-	void openDevice(std::string device_name)
-	{
-		
-		if ((ad_ = ad_open_dev(device_name.c_str(),16000)) == NULL)
-		{
-			E_FATAL("Failed to open audio device\n");
-		}
-	}
-
-	void startRec()
-	{
-		if (ad_start_rec(ad_) < 0)
-		{
-        	E_FATAL("Failed to start recording\n");
+    AudioSource(){}
+    ~AudioSource(){}
+    
+    void openDevice(std::string device_name)
+    {
+        
+        if ((ad_ = ad_open_dev(device_name.c_str(),16000)) == NULL)
+        {
+            E_FATAL("Failed to open audio device\n");
         }
-	}
+    }
 
-	void read()
-	{
-		if ((k_ = ad_read(ad_, buf_, 2048)) < 0)
-		{
-	        E_FATAL("Failed to read audio\n");
-		}
+    void startRec()
+    {
+        if (ad_start_rec(ad_) < 0)
+        {
+            E_FATAL("Failed to start recording\n");
+        }
+    }
 
-	}
+    void read()
+    {
+        if ((k_ = ad_read(ad_, buf_, 2048)) < 0)
+        {
+            E_FATAL("Failed to read audio\n");
+        }
 
-	int16_t* buf()
-	{
-		return buf_;
-	}
+    }
 
-	ad_rec_t* ad()
-	{
-		return ad_;
-	}
+    int16_t* buf()
+    {
+        return buf_;
+    }
 
-	int32 k()
-	{
-		return k_;
-	}
+    ad_rec_t* ad()
+    {
+        return ad_;
+    }
 
-	void closeDevice()
-	{
-		ad_close(ad_);
-	}
+    int32 k()
+    {
+        return k_;
+    }
+
+    void closeDevice()
+    {
+        ad_close(ad_);
+    }
 
 
 };
@@ -95,221 +81,236 @@ public:
 class Recognizer
 {
 public:
-	Recognizer(const AudioSource &as, 
-			   std::string modeldir, 
-			   std::string grammardir, 
-			   std::string dictdir, 
-			   std::string threshold):
-		as_(as),
-		modeldir_(modeldir),
-		grammardir_(grammardir),
-		dictdir_(dictdir),
-		threshold_(threshold)
+    Recognizer(AudioSource *as, 
+               std::string modeldir, 
+               std::string grammardir, 
+               std::string dictdir, 
+               std::string threshold):
+        as_(as),
+        modeldir_(modeldir),
+        grammardir_(grammardir),
+        dictdir_(dictdir),
+        threshold_(threshold){}
 
-	{
-		config_ = cmd_ln_init(NULL, ps_args(), TRUE,
-			"-hmm", modeldir_.c_str(),
-			"-jsgf",grammardir_.c_str(),
-			"-dict",dictdir_.c_str() ,
-			"-vad_threshold",threshold_.c_str(),	
-			"-remove_noise","yes",
-			NULL);
-		
-		if (config_ == NULL)
-		{
-			fprintf(stderr, "Failed to create config object, see log for details\n");
-			//return -1;
-		}
+    ~Recognizer()
+    {
+        cmd_ln_free_r(config_);
+        ps_free(ps_);
+        
+    }
 
-		ps_ = ps_init(config_);
-		if (ps_ == NULL) 
-		{
-        	fprintf(stderr, "Failed to create recognizer, see log for details\n");
+    void init()
+    {
+         config_ = cmd_ln_init(NULL, ps_args(), TRUE,
+        "-hmm", modeldir_.c_str(),
+        "-jsgf",grammardir_.c_str(),
+        "-dict",dictdir_.c_str() ,
+        "-vad_threshold",threshold_.c_str(),    
+        "-remove_noise","yes",
+        NULL);
+        
+        if (config_ == NULL)
+        {
+            fprintf(stderr, "Failed to create config object, see log for details\n");
+            //return -1;
         }
-	}
 
-	~Recognizer()
-	{
-		cmd_ln_free_r(config_);
-		ps_free(ps_);
-	}
+        ps_ = ps_init(config_);
+        if (ps_ == NULL) 
+        {
+            fprintf(stderr, "Failed to create recognizer, see log for details\n");
+        }
+    }
 
-	void startUtt()
-	{
-		if (ps_start_utt(ps_) < 0)
-	    {
-        	E_FATAL("Failed to start utterance\n");
-   		}
-	}
+    void startUtt()
+    {
+        if (ps_start_utt(ps_) < 0)
+        {
+            E_FATAL("Failed to start utterance\n");
+        }
+    }
 
-	void proccesRaw()
-	{
-		ps_process_raw(ps_, as_.buf(), as_.k(), FALSE, FALSE);
-	}
+    void proccesRaw()
+    {
+        ps_process_raw(ps_, as_->buf(), as_->k(), FALSE, FALSE);
+    }
 
-	void endUtt()
-	{
-		ps_end_utt(ps_);
-	}
+    void endUtt()
+    {
+        ps_end_utt(ps_);
+    }
 
-	const char*  getHyp()
-	{
-		 const char  *hyp;
-		 hyp = ps_get_hyp(ps_, NULL);
-		 return hyp;
-	}
+    
+    std::string getHyp()
+    {
+         char const *hyp;
+         hyp = ps_get_hyp(ps_, NULL);
+         if(hyp==NULL){
+            return std::string("");
+         }
+         return std::string(hyp);
+    }
 
-	bool inSpeech()
-	{
-		if (ps_get_in_speech(ps_))
-		{
-			return true;
-		}
-		else
-		{
-			return false;
-		}
-	}
+    bool inSpeech()
+    {
+        if (ps_get_in_speech(ps_))
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
 
-	void initDevice(std::string device)
-	{
-		as_.openDevice(device);
-		as_.startRec();
-	}
+    void initDevice(std::string device)
+    {
+        as_->openDevice(device);
+        as_->startRec();
+    }
 
-	void readAudio()
-	{
-		as_.read();
-	}
+    void readAudio()
+    {
+        as_->read();
+    }
 
-	void terminateDevice()
-	{
-		as_.closeDevice();
-	}
+    void terminateDevice()
+    {
+        as_->closeDevice();
+    }
 
 
-	
-	
+    
+    
 private:
-	AudioSource as_;
-	int16_t buf_[2048];
-	ps_decoder_t *ps_;
-	cmd_ln_t *config_;
-	std::string modeldir_;
-	std::string grammardir_;
-	std::string dictdir_;
-	std::string threshold_;
-	std::string partial_;
+    AudioSource *as_;
+    int16_t buf_[2048];
+    ps_decoder_t *ps_;
+    cmd_ln_t *config_;
+    std::string modeldir_;
+    std::string grammardir_;
+    std::string dictdir_;
+    std::string threshold_;
+    std::string partial_;
 
 
 
 };
 
+
+typedef boost::shared_ptr<Recognizer> RecognizerPtr;
+
 class RecognizerROS 
 {
 public:
-	RecognizerROS(const Recognizer& recognizer):
-		recognizer_(recognizer)
-	{
-		is_on_ = false ;
-	}
-	~RecognizerROS()
-	{
-
-	}
-
-
-	void recognize()
-	{
-		uint8 utt_started;
-		
-		
-		recognizer_.initDevice("alsa_input.usb-M-Audio_Producer_USB-00-USB.analog-stereo");
-
-		recognizer_.startUtt();
-   		
-   		
-   		utt_started = FALSE;
-		E_INFO("Ready....\n");
-
-    
-    while(1){
-	    
-
-	    recognizer_.readAudio();
-	    recognizer_.proccesRaw();
-	    partial_result_= recognizer_.getHyp();
-	    ROS_INFO_STREAM(partial_result_);
-	   
-
-	    in_speech_ = recognizer_.inSpeech();
-	    
-	    if (in_speech_ && !utt_started) 
-	    {
-	        utt_started = TRUE;
-	        E_INFO("Listening...\n");
-	    }
-	   
-	    
-
-	 	if (!in_speech_ && utt_started)
-	 	{
-	        
-	        recognizer_.endUtt();
-	        
-	        
-	        final_result_= recognizer_.getHyp();
-	        
-	        if (final_result_.c_str() != NULL) 
-	        {
-	        	
-	        	is_on_ = false;
-	        	break ;
-	        }
-	    }
-	    sleep_msec(100);
+    RecognizerROS(RecognizerPtr recognizer):
+        recognizer_(recognizer),
+        loop_rate_(100)
+    {
+        recognizer_->init();
+        is_on_ = false;
     }
-    recognizer_.terminateDevice();
- 
-	}
+    ~RecognizerROS()
+    {
+
+    }
+
+
+    void recognize()
+    {
+        uint8 utt_started;
+        
+        
+        recognizer_->initDevice("alsa_input.usb-M-Audio_Producer_USB-00-USB.analog-stereo");
+
+        recognizer_->startUtt();
+        
+        utt_started = FALSE;
+        E_INFO("Ready....\n");
+
+        
+        while(1){
+            
+
+            recognizer_->readAudio();
+            recognizer_->proccesRaw();
+            partial_result_= recognizer_->getHyp();
+            ROS_INFO_STREAM(partial_result_);
+           
+
+            in_speech_ = recognizer_->inSpeech();
+            
+            if (in_speech_ && !utt_started) 
+            {
+                utt_started = TRUE;
+                E_INFO("Listening...\n");
+            }
+           
+            
+
+            if (!in_speech_ && utt_started)
+            {
+                
+                recognizer_->endUtt();
+                ROS_INFO_STREAM("ALO");
+                
+                
+                final_result_= recognizer_->getHyp();
+                break;
+               /* if (final_result_ != NULL) 
+                {
+                    
+                    is_on_ = false;
+                    
+                    break ;
+                }*/
+            }
+            loop_rate_.sleep();
+        }
+        
+        recognizer_->terminateDevice();
+        ROS_INFO_STREAM("HOLA");
+     
+    }
 
 private:
-
-	std::string final_result_;
-	char const *partial_result_;
-	Recognizer recognizer_;
-	bool in_speech_;
-	bool is_on_;
-	
+    ros::NodeHandle n_;
+    ros::Rate loop_rate_;
+    std::string final_result_;
+    std::string partial_result_;
+    RecognizerPtr recognizer_;
+    bool in_speech_;
+    bool is_on_;
+    
 
 };
 
 
 int main(int argc, char *argv[])
 {
-	ros::init(argc, argv, "talker");
-    ros::NodeHandle n;
-	ros::Rate loop_rate(10);
-	AudioSource as;
-	
+    ros::init(argc, argv, "talker");
+    
+    
+    AudioSource as;
+    
 
-	Recognizer recognizer(as,
-		"/usr/local/share/pocketsphinx/model/en-us/en-us",
-		"/home/bender/bender_ws/soft_ws/src/bender_hri/bender_speech/Grammar/Stage1/gpsr/Stage2gpsr.jsgf",
-		"/home/bender/bender_ws/soft_ws/src/bender_hri/bender_speech/Grammar/Stage1/gpsr/6759.dic",
-		"2.0");
-	RecognizerROS r(recognizer);
-	
-	
-		
-	
-		
-	r.recognize();
-	ros::spinOnce();
-	
-	
-	loop_rate.sleep();
+    RecognizerPtr recognizer( new Recognizer(&as,
+        "/usr/local/share/pocketsphinx/model/en-us/en-us",
+        "/home/bender/bender_ws/soft_ws/src/bender_hri/bender_speech/Grammar/Stage1/gpsr/Stage2gpsr.jsgf",
+        "/home/bender/bender_ws/soft_ws/src/bender_hri/bender_speech/Grammar/Stage1/gpsr/6759.dic",
+        "2.0"));
+    
+    RecognizerROS r(recognizer);
+    
+    
+   
+        
+    r.recognize();
+    ros::spinOnce();
+    
+    
+    // loop_rate.sleep();
 
-	return 0;
+    return 0;
 
 }
