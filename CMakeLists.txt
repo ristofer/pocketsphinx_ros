@@ -6,8 +6,12 @@ project(pocketsphinx_ros)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
   roscpp
+  roslib
   rospy
   std_msgs
+  genmsg
+  actionlib_msgs
+  actionlib
 )
 
 ## System dependencies are found with CMake's conventions
@@ -57,18 +61,18 @@ find_package(Boost REQUIRED COMPONENTS system signals thread)
 #   Service2.srv
 # )
 
-## Generate actions in the 'action' folder
-# add_action_files(
-#   FILES
-#   Action1.action
-#   Action2.action
-# )
 
-## Generate added messages and services with any dependencies listed here
-# generate_messages(
-#   DEPENDENCIES
-#   std_msgs
-# )
+add_action_files(
+   DIRECTORY action
+   FILES
+   DoRecognition.action
+)
+
+
+ generate_messages(
+   DEPENDENCIES
+   actionlib_msgs
+ )
 
 ################################################
 ## Declare ROS dynamic reconfigure parameters ##
@@ -131,72 +135,29 @@ add_dependencies(recognizer ${catkin_EXPORTED_TARGETS})
 target_link_libraries(recognizer ${catkin_LIBRARIES} ${Boost_LIBRARIES} pocketsphinx sphinxbase sphinxad pulse pulse-simple)
 
 
-## Declare a C++ library
-# add_library(pocketsphinx_ros
-#   src/${PROJECT_NAME}/pocketsphinx_ros.cpp
-# )
+## - - - recognizeralfa - - - 
+add_executable(recognizeralfa src/recognizeralfa.cpp)
+add_dependencies(recognizeralfa ${catkin_EXPORTED_TARGETS})
+target_link_libraries(recognizeralfa ${catkin_LIBRARIES} ${Boost_LIBRARIES} pocketsphinx sphinxbase sphinxad pulse pulse-simple)
 
-## Add cmake target dependencies of the library
-## as an example, code may need to be generated before libraries
-## either from message generation or dynamic reconfigure
-# add_dependencies(pocketsphinx_ros ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+## - - - recognizergamma- - - 
+add_executable(recognizergamma src/recognizergamma.cpp)
+add_dependencies(recognizergamma ${catkin_EXPORTED_TARGETS})
+target_link_libraries(recognizergamma ${catkin_LIBRARIES} ${Boost_LIBRARIES} pocketsphinx sphinxbase sphinxad pulse pulse-simple)
 
-## Declare a C++ executable
-# add_executable(pocketsphinx_ros_node src/pocketsphinx_ros_node.cpp)
+## - - - tester - - - 
+add_executable(tester src/tester.cpp)
+add_dependencies(
+  tester
+  ${catkin_EXPORTED_TARGETS}
+)
+target_link_libraries( 
+  tester
+  ${catkin_LIBRARIES}
+)
 
-## Add cmake target dependencies of the executable
-## same as for the library above
-# add_dependencies(pocketsphinx_ros_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
-## Specify libraries to link a library or executable target against
-# target_link_libraries(pocketsphinx_ros_node
-#   ${catkin_LIBRARIES}
-# )
 
-#############
-## Install ##
-#############
 
-# all install targets should use catkin DESTINATION variables
-# See http://ros.org/doc/api/catkin/html/adv_user_guide/variables.html
 
-## Mark executable scripts (Python etc.) for installation
-## in contrast to setup.py, you can choose the destination
-# install(PROGRAMS
-#   scripts/my_python_script
-#   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-# )
 
-## Mark executables and/or libraries for installation
-# install(TARGETS pocketsphinx_ros pocketsphinx_ros_node
-#   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-#   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-#   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-# )
-
-## Mark cpp header files for installation
-# install(DIRECTORY include/${PROJECT_NAME}/
-#   DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
-#   FILES_MATCHING PATTERN "*.h"
-#   PATTERN ".svn" EXCLUDE
-# )
-
-## Mark other files for installation (e.g. launch and bag files, etc.)
-# install(FILES
-#   # myfile1
-#   # myfile2
-#   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
-# )
-
-#############
-## Testing ##
-#############
-
-## Add gtest based cpp test target and link libraries
-# catkin_add_gtest(${PROJECT_NAME}-test test/test_pocketsphinx_ros.cpp)
-# if(TARGET ${PROJECT_NAME}-test)
-#   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
-# endif()
-
-## Add folders to be run by python nosetests
-# catkin_add_nosetests(test)
