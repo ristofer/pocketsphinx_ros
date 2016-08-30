@@ -1,0 +1,166 @@
+#JSGF V1.0;
+
+grammar sentence;
+
+
+
+public <sentence> =  <complete_sentenceA> | <complete_sentenceB>  |<complete_sentenceC>|<complete_sentenceD>|<complete_sentenceD2>|<complete_sentenceE>| <complete_sentenceF> | <complete_sentenceG>  | <complete_sentenceH>  | <complete_sentenceH2> | <complete_sentenceJ> | <complete_sentenceI>| <orderwithme> |<noise>;
+
+<complete_sentenceA> = <sentence_location_place> [AND] <ordernoperson> [AND] <orderwithperson> ;
+<complete_sentenceB> = <sentence_location_location> [AND] <getobj> [AND] <deliber_obj>;
+<complete_sentenceC> = <sentence_location_location> [<count> [THE] <category_object> [[AND] (<report> TO [THE] <person_name> <preposition_place> <location> | <report> TO ME )]];
+<complete_sentenceD> = <inittakeobject> [AND] <deliber_obj> ;
+
+<complete_sentenceD2> = <inittakeobject> [AND] <deliber_obj2> [AND] <orderwithperson> ;
+
+<complete_sentenceE> = <sentence_independent>;
+<complete_sentenceF> = <ordernopersonloc> [AND] <orderwithperson> ;
+<complete_sentenceG> = <getobj> <from_the> <location> [AND] <deliber_obj> ;
+
+<complete_sentenceH> = (<sentence_location_location> | <sentence_location_place>) [AND] <find_obj> [AND] [<deliber_obj>];
+<complete_sentenceH2> =  <find_obj> [AND] [<deliber_obj>];
+
+<complete_sentenceJ> = <sentence_location_place> [AND] <ask> <to_the_person_there> <question_prep> <person_belongs> <ask_theme> [AND] ( <orderwithperson> | <order_report>);
+<complete_sentenceI> = <deliver_withoutobj> [AND](<orderwithperson> | <return>);
+<sentence_location_place> =  <orderlocation_independent> <place> ;
+<sentence_location_location> = <orderlocation_independent> <location>;
+
+<getobj> = (<grasp> | TAKE) [THE | A] <object>;  
+<deliber_obj> = ( <orderobject_deliber> | <orderobject_place> ) [THE] <location> | <orderobject_deliber> [THE] <person_name> <preposition_place> <place> | <orderobject_deliber> ME ; 
+<deliber_obj2> = <orderobject_deliber> [THE] <person_name> <preposition_place> <place> | <orderobject_deliber> ME ;
+<deliver_withoutobj> = <bring> [THE | A] <object> TO [THE] <person_name> <preposition_place> <place> ;
+<sentenceobj_independent> =  <count> THE <category_object> [<preposition_place> <location>];
+<sentenceperson_independent> = <offer> [A] <category_object> TO [THE] <person_name> <preposition_place> <place>;
+<find_obj> = <find> [FOR] [THE | A] <object>;
+<find_obj2> = <find> [FOR] [THE | A] <object> <preposition_place> <location>;
+
+
+
+
+<sentence_independent> = <sentenceperson_independent> | <sentence_location_place> | <sentenceobj_independent> ;
+<orderlocation_independent> = <go> [TO THE | THE]  ;
+<orderobject_deliber> = (<bring> | TAKE) [IT TO | THEM TO] ;
+<orderobject_place> = <put> [IT IN | THEM IN] ;
+
+<inittakeobject> = (TAKE) THIS [OBJECT | <object>];
+<ordernoperson> = <find> [FOR] [A | THE] <person_name> ;
+<ordernopersonloc> = ( FIND | LOOKFOR ) [A | THE] <person_name> <preposition_place> <place>;
+
+ speak tell the day of the week
+
+<orderwithperson> = (<say> [<person_belongs>] <themes> | <answer> [<person_belongs>] A QUESTION | <follow> (<person_belongs>) [[<to_the>] [<place>]]); 
+<orderwithme> = (<say> ME <themes> | <answer> ME A QUESTION | <follow> ME) ;
+
+<themes> = <your_name> | <the_name_of_your_team> | <the_time> | <what_time_is_it> | <the_date> | <what_day_is_today> | <what_day_is_tomorrow> | <the_day_of_the_month> | <the_day_of_the_week>  ;
+<ask_theme> = NAME | LASTNAME | NICKNAME;
+
+<person> =  <person_name> | <pronoun_obj>;
+
+
+
+<pronoun_obj> =  ME | HIM | HER ;
+<person_belongs> = HIS | HER;
+
+
+
+
+<preposition_place> = <in_the> | <at_the> | <which_is_in_the> ;
+
+
+
+<question_prep> = ABOUT | FOR;
+
+
+<order_report> = <report> [TO] ME ;
+<noise> =  HUM | WA | SH | CH | S | MM | PU | TU | SS | HUH | NAA ;
+
+
+
+#***********INFORMACION
+<place> = HALLWAY | BEDROOM | KITCHEN | LIVINGROOM | DOOR ;
+<location> = KITCHENTABLE | KITCHENCOUNTER | CUPBOARD | BAR | COUCHTABLE | DINNERTABLE | SOFA | LEFT-BEDSIDE-TABLE | RIGHT-BEDSIDE-TABLE | DESK | BED | BOOKCASE ;
+<person_name> =  PERSON | ALEX | ANGEL | EDWARD | HOMER | JAMIE | JOHN | KEVIN | KURT | TRACY | ROBIN | ALEX | ANGEL | EVE | JAMIE | JANE | LIZA | MELISSA | TRACY | ROBIN | SOPHIA | WAVING PERSON | CALLING PERSON;
+<object> = GREENTEA |  PAPAYAMILK |  PUREMILK |  WATER | ORANGEJUICE | BEER | BISCUITS | BUBBLEGUM | CHOCOLATES | TOMATOCHIPS | BARBECUECHIPS | HONEYCHIP | COCONUTCEREALS | COCOBALLS | EGGSTARS | GRAMSOUP | BEANSAUCE | APPLE | LEMON | PEAR | SPONGE | TOILETPAPER | SOAP | LOTION | TOOTHPASTE | CLOTH | BOWL | PLATE | TRAY;
+<category_object> =  DRINK | FOOD | OBJECTS;
+
+
+
+
+<to_the> = TOTHE | TO THE ;
+
+
+
+<in_the> = IN THE | INTHE ;
+<at_the> = AT THE | ATHE | ATTHE ;
+
+<which_is_in_the> = WHICHISINTHE | WHICHISIN THE| WICH ISINTHE| WHICH ISIN THE| WICHIS INTHE| WICHIS IN THE | WICH IS IN THE ;
+
+
+
+<your_name> = YOURNAME | YOUR NAME ;
+<the_name_of_your_team> = THENAMEOF YOURTEAM | THE NAMEOF YOURTEAM | YOURTEAMS NAME| YOUR TEAM NAME ; 
+<the_time> = THE TIME | THETIME ;
+<what_time_is_it> = WHAT TIME IS IT | WHAT TIME ISIT | WHAT TIMEIS IT | WHAT TIMEISIT | WHATTIMEISIT ;
+<the_date> = THEDATE | THE DATE ;
+<what_day_is_today> = WHAT DAYS IT TODAY | WHAT DAYISIT TODAY| WHAT DAY ISIT TODAY| WHATDAYISIT TODAY| WHATDAYISITODAY| WHAT IS IT TODAY ;
+<what_day_is_tomorrow> = WHAT DAYS TOMORROW | WHAT DAYIS TOMORROW| WHAT DAY IS TOMORROW| WHATDAYIS TOMORROW | WHATDAYISTOMORROW ;
+<the_day_of_the_month> = THE DAYOF THE MONTH | THEDAYOF THE MONTH | THE DAY OF THE MONTH| THEDAYOFTHEMONTH ;
+<the_day_of_the_week> = THE DAYOF THE WEEK | THEDAYOF THE WEEK | THE DAY OF THE WEEK| THEDAYOFTHEWEEK ;
+
+
+
+
+<to_the_person_there> = TOTHEPERSON THERE| TO THE PERSON THERE| TO THEPERSON THERE ;
+
+
+
+<from_the> = FROMTHE | FROM THE ;
+
+
+
+
+<go> = (GO | NAVIGATE | REACH | ARRIVE | MOVE | DRIVE | ENTER | GET INTO | VISIT | ACCESS | APROACH) ;
+
+<grasp> = (GRASP | GET | GRAB | GRIP | CATCH | GRAPPLE | HOLD | HOOK ) ;
+
+<bring> = (BRING | CARRY | DELIVER | RETURN | TRANSPORT | GIVE | FETCH) ;
+
+<find> = (FIND | LOOK | SEARCH | DETECT | ENCOUNTER | LOCATE | IDENTIFY | MEET | NOTICE | SPOT | RECOGNIZE | SIGHT) ;
+
+<offer> = (OFFER | SUGGEST) ;
+
+<count> = (COUNT | ENUMERATE | CALCULATE | NUMBER) ;
+
+<report> = (REPORT | INFORM | NOTIFY) ;
+
+<introduce> = (INTRODUCE | PRESENT) ;
+
+<answer> = (ANSWER | RESPOND | RESOLVE | SOLVE | CONTEST ) ;
+
+<guide> = (GUIDE | ACCOMPANY | LEAD | ESCORT | CONDUCT | ROUTE) ;
+
+<put> = (PUT | LEAVE | LAY | PLACE | SETTLE | SET | DEPOSIT | SITUATE | REST | LOCATE | ALLOCATE | STOW) ;
+
+<say> = (SAY | SPEAK | TELL | TALK) ;
+
+<ask> = (ASK | REQUEST) ;
+
+<follow> = (FOLLOW) ;
+
+<return> = (RETURN | COMEBACK) ;
+//-->> key="<go>" value="go"
+//-->> key="<grasp>"  value="grasp"
+//-->> key="<bring>" value="bring"
+//-->> key="<find>"  value="find"
+//-->> key="<offer>" value="offer"
+//-->> key="<count>"  value="count"
+//-->> key="<report>" value="report"
+//-->> key="<introduce>"  value="introduce"
+
+//-->> key="<answer>" value="answer"
+//-->> key="<guide>"  value="guide"
+//-->> key="<put>" value="put"
+//-->> key="<say>"  value="say"
+//-->> key="<ask>" value="ask"
+//-->> key="<follow>"  value="follow"
+//-->> key="<return>"  value="return"
