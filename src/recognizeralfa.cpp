@@ -251,7 +251,7 @@ public:
     {
         recognizer_->init();
         action_server_.start();
-        pkg_dir_= ros::package::getPath("bender_speech");
+        pkg_dir_= ros::package::getPath("pocketsphinx_ros");
         is_on_ = false;
     }
     ~RecognizerROS()
@@ -385,8 +385,8 @@ int main(int argc, char *argv[])
 
     RecognizerPtr recognizer( new Recognizer(&as,
         "/usr/local/share/pocketsphinx/model/en-us/en-us",
-        "/home/bender/bender_ws/soft_ws/src/bender_hri/bender_speech/Grammar/Stage1/gpsr/Stage2gpsr.jsgf",
-        "/home/bender/bender_ws/soft_ws/src/bender_hri/bender_speech/Grammar/Stage1/gpsr/Stage2gpsr.dic",
+        "/home/robotica/bender_ws/soft_ws/src/bender_hri/pocketsphinx_ros/Grammar/Stage1/Stage2gpsr.jsgf",
+        "/home/robotica/bender_ws/soft_ws/src/bender_hri/pocketsphinx_ros/Grammar/Stage1/Stage2gpsr.dic",
         "2.0"));
     
     RecognizerROS r(recognizer);

@@ -1,9 +1,20 @@
+/*
+ * recognizer.cpp
+ *
+ *  Created on: 01-09-2016
+ *      Author: Cristopher Gómez
+        Email: cristopher.gomez@ug.uchile.cl
+ */
+
+//ROS
 #include <ros/ros.h>
 #include <ros/package.h>
 
+//Messages and services
 #include <std_msgs/String.h>
 #include <std_srvs/Empty.h>
-
+//#include <bender_srvs/load_dictionary_service.h>
+#include <pocketsphinx_ros/RecognitionOrder.h>
 
 #include <sstream>
 
@@ -12,15 +23,16 @@
 #include <string.h>
 #include <assert.h>
 
-
+//Sphinxbase for Pocketsphinx.  It's important to remember that Sphinxbase and Pocketsphinx are C libraries 
 #include <sphinxbase/err.h>
 #include <sphinxbase/ad.h>
 
+//Pocketsphinx
 #include "pocketsphinx.h"
 
 
 
-
+//AudioSource uses sphinxbase functions to acces the microphone and read the audio to give it to the recognizer object
 class AudioSource
 {
 private:
@@ -35,7 +47,8 @@ public:
     void openDevice(std::string device_name)
     {
         
-        if ((ad_ = ad_open_dev(device_name.c_str(),16000)) == NULL)
+        if ((ad_ = ad_open_dev(device_name.c_str(),16000)) == NULL) //Remember that ad_open_dev() it's a C function so it receive a c_str().
+                                                                    //the second parameter 16000, it's the sampling rate
         {
             E_FATAL("Failed to open audio device\n");
         }
@@ -81,6 +94,7 @@ public:
 
 };
 
+//Recognizer serves as a wrapper for the Pocketsphinx functions
 class Recognizer
 {
 public:
@@ -95,7 +109,7 @@ public:
         dictdir_(dictdir),
         threshold_(threshold)
         {
-            init_state_ = false;
+            init_state_ = false; //this indicates if the pocketsphinx decoder (ps) is initialized
         }
 
     ~Recognizer()
@@ -108,7 +122,7 @@ public:
 
     void init()
     {
-         config_ = cmd_ln_init(NULL, ps_args(), TRUE,
+         config_ = cmd_ln_init(NULL, ps_args(), TRUE, // This structure saves the parameters for the decoder
         "-hmm", modeldir_.c_str(),
         "-jsgf",grammardir_.c_str(),
         "-dict",dictdir_.c_str() ,
@@ -122,7 +136,7 @@ public:
             //return -1;
         }
 
-        ps_ = ps_init(config_);
+        ps_ = ps_init(config_); //With the config structure the decoder is initialized
         if (ps_ == NULL) 
         {
             fprintf(stderr, "Failed to create recognizer, see log for details\n");
@@ -241,23 +255,27 @@ private:
 
 typedef boost::shared_ptr<Recognizer> RecognizerPtr;
 
+//RecognizerROS have services and publishers.  It wait for a service call to start the recognition and publish the results.
 class RecognizerROS 
 {
 public:
     RecognizerROS(RecognizerPtr recognizer):
         recognizer_(recognizer),
-        loop_rate_(100)
+        loop_rate_(100),
+        nh_("~")
+        
     {
         recognizer_->init();
         
-        start_srv_ = nh_.advertiseService("~start",&RecognizerROS::startRecognition,this);
-        stop_srv_ = nh_.advertiseService("~stop",&RecognizerROS::stopRecognition,this);
-       // load_dict_srv_ = nh_.advertiseService("~load_dictionary",&RecognizerROS::loadDictionary,this);
+        start_srv_ = nh_.advertiseService("start_with_dictionary",&RecognizerROS::startRecognition,this);
+        stop_srv_ = nh_.advertiseService("stop",&RecognizerROS::stopRecognition,this);
+        //load_dict_srv_ = nh_.advertiseService("load_dictionary",&RecognizerROS::loadDictionary,this);
         
-        output_pub_ = nh_.advertise<std_msgs::String>("~output",1,this);
+        output_pub_ = nh_.advertise<std_msgs::String>("output",1,this);
+        partial_output_pub = nh_.advertise<std_msgs::String>("partial_output",1,this);
 
 
-        pkg_dir_= ros::package::getPath("bender_speech");
+        pkg_dir_= ros::package::getPath("pocketsphinx_ros");
         is_on_ = false;
     }
     ~RecognizerROS()
@@ -265,8 +283,9 @@ public:
 
     }
 
-    bool startRecognition(std_srvs::Empty::Request &req, std_srvs::Empty::Response &
-    res){
+    bool startRecognition(pocketsphinx_ros::RecognitionOrder::Request &req, pocketsphinx_ros::RecognitionOrder::Response &res){
+        loadDictionary(req.dictionary);
+        recognize();
         
     }
    
@@ -274,37 +293,34 @@ public:
         
     }
 
-    // void executeCB(const pocketsphinx_ros::DoRecognitionGoalConstPtr &goal)
-    // {
-        
-    //     std::string dictionary;
-    //     dictionary = goal->dictionary;
-    //     updateDirectories(dictionary);
-    //     recognizer_->setGrammar(grammardir_);
-    //     recognizer_->setDict(dictdir_);
-    //     recognizer_->update();
-    //     recognize();
+    void loadDictionary(std::string dict){
 
+     updateDirectories(dict);
+     recognizer_->setGrammar(grammardir_);
+     recognizer_->setDict(dictdir_);
+     recognizer_->update();
+     
+}
 
-    //}
-
-    // void updateDirectories(std::string dictionary)
-    // {
-    //     std::stringstream ss;
-    //     std::stringstream jsgf;
-    //     std::stringstream dic;
-    //     ss << pkg_dir_ << "/Grammar/" << dictionary ;
-    //     std::string path = ss.str();
-    //     jsgf << path << ".jsgf" ;
-    //     dic << path << ".dic" ;
-    //     dictdir_ = dic.str();
-    //     grammardir_ = jsgf.str();
-    // }
+    void updateDirectories(std::string dictionary)
+    {
+        std::stringstream ss;
+        std::stringstream jsgf;
+        std::stringstream dic;
+        ss << pkg_dir_ << "/Grammar/" << dictionary ;
+        std::string path = ss.str();
+        jsgf << path << ".jsgf" ;
+        dic << path << ".dic" ;
+        dictdir_ = dic.str();
+        grammardir_ = jsgf.str();
+    }
 
 
     void recognize()
     {
         uint8 utt_started;
+        std_msgs::String partial_result ;
+        std_msgs::String final_result ;
         
         if (recognizer_->status() == false){return;}
         recognizer_->initDevice("alsa_input.usb-M-Audio_Producer_USB-00-USB.analog-stereo");
@@ -320,8 +336,8 @@ public:
 
             recognizer_->readAudio();
             recognizer_->proccesRaw();
-            // feedback_.partial_result= recognizer_->getHyp();
-            // action_server_.publishFeedback(feedback_);
+            partial_result.data = recognizer_->getHyp();
+            partial_output_pub.publish(partial_result);
            
 
             in_speech_ = recognizer_->inSpeech();
@@ -341,7 +357,7 @@ public:
                 ROS_INFO_STREAM("Finishing");
                 
                 
-                // result_.final_result = recognizer_->getHyp();
+                final_result.data = recognizer_->getHyp();
 
                 break;
                /* if (final_result_ != NULL) 
@@ -356,7 +372,7 @@ public:
         }
         
         recognizer_->terminateDevice();
-        // action_server_.setSucceeded(result_);
+        output_pub_.publish(final_result);
         
      
     }
@@ -367,7 +383,7 @@ private:
     
     ros::ServiceServer start_srv_ ;
     ros::ServiceServer stop_srv_ ;
-    //ros::ServiceServer load_dict_srv_;
+    ros::ServiceServer load_dict_srv_;
 
     ros::Publisher output_pub_;
     ros::Publisher partial_output_pub ;
@@ -382,8 +398,8 @@ private:
     std::string dictdir_;
     std::string threshold_;
 
-    std::string final_result_;
-    std::string partial_result_;
+    //std::string final_result_;
+    //std::string partial_result_;
     
 
     RecognizerPtr recognizer_;
@@ -404,8 +420,8 @@ int main(int argc, char *argv[])
 
     RecognizerPtr recognizer( new Recognizer(&as,
         "/usr/local/share/pocketsphinx/model/en-us/en-us",
-        "/home/bender/bender_ws/soft_ws/src/bender_hri/bender_speech/Grammar/Stage1/gpsr/Stage2gpsr.jsgf",
-        "/home/bender/bender_ws/soft_ws/src/bender_hri/bender_speech/Grammar/Stage1/gpsr/Stage2gpsr.dic",
+        "/home/robotica/bender_ws/soft_ws/src/bender_hri/pocketsphinx_ros/Grammar/Stage1/Stage2gpsr.jsgf",
+        "/home/robotica/bender_ws/soft_ws/src/bender_hri/pocketsphinx_ros/Grammar/Stage1/Stage2gpsr.dic",
         "2.0"));
     
     RecognizerROS r(recognizer);

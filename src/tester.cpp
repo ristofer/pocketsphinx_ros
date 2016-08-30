@@ -20,7 +20,7 @@ int main (int argc, char **argv)
   ROS_INFO("Action server started, sending goal.");
   // send a goal to the action
   pocketsphinx_ros::DoRecognitionGoal goal;
-  goal.dictionary = std::string("Stage1/gpsr/Stage2gpsr");
+  goal.dictionary = std::string("Stage1/Stage2gpsr");
   ac.sendGoal(goal);
 
   //wait for the action to return

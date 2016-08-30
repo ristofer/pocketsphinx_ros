@@ -9,9 +9,10 @@ find_package(catkin REQUIRED COMPONENTS
   roslib
   rospy
   std_msgs
-  genmsg
+  message_generation
   actionlib_msgs
   actionlib
+  bender_srvs
 )
 
 ## System dependencies are found with CMake's conventions
@@ -55,15 +56,15 @@ find_package(Boost REQUIRED COMPONENTS system signals thread)
 # )
 
 ## Generate services in the 'srv' folder
-# add_service_files(
-#   FILES
-#   Service1.srv
-#   Service2.srv
-# )
+ add_service_files(
+   FILES
+   RecognitionOrder.srv
+ )
 
 
 add_action_files(
-   DIRECTORY action
+   DIRECTORY 
+   action
    FILES
    DoRecognition.action
 )
@@ -72,6 +73,7 @@ add_action_files(
  generate_messages(
    DEPENDENCIES
    actionlib_msgs
+   
  )
 
 ################################################
