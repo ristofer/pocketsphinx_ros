@@ -266,6 +266,7 @@ public:
         
         is_on_ = false;
     }
+
     ~RecognizerROS()
     {
 
@@ -317,7 +318,7 @@ public:
 
             recognizer_->readAudio();
             recognizer_->proccesRaw();
-            feedback_.partial_result= recognizer_->getHyp();
+            feedback_.partial_result = recognizer_->getHyp();
             action_server_.publishFeedback(feedback_);
            
 
