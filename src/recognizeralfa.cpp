@@ -97,8 +97,30 @@ public:
         dictdir_(dictdir),
         threshold_(threshold)
         {
-            init_state_ = false;
+            config_ = cmd_ln_init(NULL, ps_args(), TRUE,
+            "-hmm", modeldir_.c_str(),
+            "-jsgf",grammardir_.c_str(),
+            "-dict",dictdir_.c_str() ,
+            "-vad_threshold",threshold_.c_str(),    
+            "-remove_noise","yes",
+            NULL);
+            
+            if (config_ == NULL)
+            {
+                fprintf(stderr, "Failed to create config object, see log for details\n");
+                //return -1;
+            }
+
+            ps_ = ps_init(config_);
+            if (ps_ == NULL) 
+            {
+                fprintf(stderr, "Failed to create recognizer, see log for details\n");
+            }
+
+            init_state_ = true;
+
         }
+
 
 
     ~Recognizer()
@@ -108,31 +130,7 @@ public:
         init_state_ = false;
     }
 
-    void init()
-    {
-         config_ = cmd_ln_init(NULL, ps_args(), TRUE,
-        "-hmm", modeldir_.c_str(),
-        "-jsgf",grammardir_.c_str(),
-        "-dict",dictdir_.c_str() ,
-        "-vad_threshold",threshold_.c_str(),    
-        "-remove_noise","yes",
-        NULL);
-        
-        if (config_ == NULL)
-        {
-            fprintf(stderr, "Failed to create config object, see log for details\n");
-            //return -1;
-        }
-
-        ps_ = ps_init(config_);
-        if (ps_ == NULL) 
-        {
-            fprintf(stderr, "Failed to create recognizer, see log for details\n");
-        }
-
-        init_state_ = true;
-
-    }
+   
 
     void startUtt()
     {
@@ -194,11 +192,13 @@ public:
     void setDict(const std::string& dictdir)
     {
         dictdir_ = dictdir;
+        ps_load_dict(ps_,dictdir_.c_str(),NULL,NULL);
     }
 
     void setGrammar(const std::string& grammardir)
     {
         grammardir_ = grammardir;
+        ps_set_jsgf_file(ps_,"grammar_search",grammardir_.c_str());    
     }
 
     void setThreshold(const std::string& threshold)
@@ -206,19 +206,23 @@ public:
         threshold_ = threshold;
     }
 
-    void update()
-    {
-        if(init_state_){
-        cmd_ln_free_r(config_);
-        ps_free(ps_);
-        init_state_ = false;
-        }
-        init();
-    }
 
     bool status()
     {
         return init_state_;
+    }
+
+    std::string getSearch()
+    {
+        
+
+         char const *search_name;
+         search_name = ps_get_search(ps_);
+         if(search_name==NULL){
+            return std::string("");
+         }
+         return std::string(search_name);
+    
     }
 
 
@@ -267,7 +271,6 @@ public:
         "2.0"));
 
 
-        recognizer_->init();
         action_server_.start();
         
         is_on_ = false;
@@ -283,12 +286,12 @@ public:
     void executeCB(const pocketsphinx_ros::DoRecognitionGoalConstPtr &goal)
     {
         
-        std::string dictionary;
-        dictionary = goal->dictionary;
-        updateDirectories(dictionary);
+        std::string dictionary_name;
+        dictionary_name = goal->dictionary;
+        updateDirectories(dictionary_name);
         recognizer_->setGrammar(grammardir_);
         recognizer_->setDict(dictdir_);
-        recognizer_->update();
+        //recognizer_->update();
         recognize();
 
 
@@ -312,7 +315,7 @@ public:
     void recognize()
     {
         uint8 utt_started;
-        
+        std::string search_name;
 
         if (recognizer_->status() == false){return;}
 
@@ -321,6 +324,10 @@ public:
         recognizer_->startUtt();
         
         utt_started = FALSE;
+
+        search_name = recognizer_->getSearch() ;
+
+        ROS_INFO_STREAM(search_name);
 
         ROS_INFO_STREAM("Ready....");
 

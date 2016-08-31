@@ -1,0 +1,37 @@
+#JSGF V1.0;
+grammar confirmation;
+
+// Comentarios se pueden poner como en C++!
+/* 
+ * Se utiliza una cantidad finita de ruido!, así el sistema no esperará
+ * indefinidamente por un silencio.
+*/
+public <confirmation> = (<robot> <yes_or_no>) | <noise> [<noise>] [<noise>];
+
+<robot> = (BENDER);
+
+// Se usan variantes para cada confirmación, así se tiene un modelo más robusto.
+<yes_or_no> = (<yes> | <no> );
+<yes> = (YES | YEP | YIS | YAS );
+<no> = (NO | NOPE );
+
+// [Importante]: Para que el reconocedor pueda tomar todas las 
+// variantes de una palabra, como si fueran "esa" palabra,  se
+// ocupa lo siguiente (=> no eliminar):
+//
+//-->> key="<yes>" value="yes"
+//-->> key="<no>"  value="no"
+//
+// Nota: Está bien que estén comentados... de lo contrario, habrían
+// problemas de compilación.
+//
+// Uso:
+// - Cada comando debe comenzar con '//-->>' 
+// - key: tag a analizar, para obtener los valores posibles.
+//     Se obtendrán todos los valores de ese tag, en ESA LÍNEA!!! (NO USAR SALTOS DE LÍNEA!)
+// - val: valor final que tendrá la respuesta
+// - La definición debe ser en ese orden. no importan los espacios
+// - la declaración ( <foo> = (FOO1 |BAR 1 ...;)) puede contener sólo los no literales: {'(',')','|'}
+
+<noise> = ( HUM | WA | SH | CH | S | MM | PU | TU | SS | HUH | NAA  );
+

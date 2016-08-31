@@ -1,0 +1,102 @@
+Language model created by QuickLM on Thu Jan 22 10:08:10 EST 2015
+Copyright (c) 1996-2010 Carnegie Mellon University and Alexander I. Rudnicky
+
+The model is in standard ARPA format, designed by Doug Paul while he was at MITRE.
+
+The code that was used to produce this language model is available in Open Source.
+Please visit http://www.speech.cs.cmu.edu/tools/ for more information
+
+The (fixed) discount mass is 0.5. The backoffs are computed using the ratio method.
+This model based on a corpus of 31 sentences and 21 words
+
+\data\
+ngram 1=21
+ngram 2=38
+ngram 3=19
+
+\1-grams:
+-0.7782 </s> -0.3010
+-0.7782 <s> -0.2218
+-2.2695 BENDER -0.2218
+-1.7924 H -0.2218
+-1.7924 HUH -0.2218
+-1.7924 M -0.2218
+-1.7924 MM -0.2218
+-2.2695 NAO -0.2218
+-2.2695 NEIN -0.2218
+-2.2695 NEM -0.2218
+-2.2695 NO -0.2218
+-2.2695 NON -0.2218
+-2.2695 NOPE -0.2218
+-1.7924 S -0.2218
+-1.7924 SS -0.2218
+-2.2695 YAI -0.2218
+-2.2695 YAS -0.2218
+-2.2695 YEP -0.2218
+-2.2695 YES -0.2218
+-2.2695 YIS -0.2218
+-2.2695 YUP -0.2218
+
+\2-grams:
+-1.7924 <s> BENDER 0.0000
+-1.3153 <s> H 0.0000
+-1.3153 <s> HUH 0.0000
+-1.3153 <s> M 0.0000
+-1.3153 <s> MM 0.0000
+-1.7924 <s> NAO 0.0000
+-1.7924 <s> NEIN 0.0000
+-1.7924 <s> NEM 0.0000
+-1.7924 <s> NO 0.0000
+-1.7924 <s> NON 0.0000
+-1.7924 <s> NOPE 0.0000
+-1.3153 <s> S 0.0000
+-1.3153 <s> SS 0.0000
+-1.7924 <s> YAI 0.0000
+-1.7924 <s> YAS 0.0000
+-1.7924 <s> YEP 0.0000
+-1.7924 <s> YES 0.0000
+-1.7924 <s> YIS 0.0000
+-1.7924 <s> YUP 0.0000
+-0.3010 BENDER </s> -0.3010
+-0.3010 H </s> -0.3010
+-0.3010 HUH </s> -0.3010
+-0.3010 M </s> -0.3010
+-0.3010 MM </s> -0.3010
+-0.3010 NAO </s> -0.3010
+-0.3010 NEIN </s> -0.3010
+-0.3010 NEM </s> -0.3010
+-0.3010 NO </s> -0.3010
+-0.3010 NON </s> -0.3010
+-0.3010 NOPE </s> -0.3010
+-0.3010 S </s> -0.3010
+-0.3010 SS </s> -0.3010
+-0.3010 YAI </s> -0.3010
+-0.3010 YAS </s> -0.3010
+-0.3010 YEP </s> -0.3010
+-0.3010 YES </s> -0.3010
+-0.3010 YIS </s> -0.3010
+-0.3010 YUP </s> -0.3010
+
+\3-grams:
+-0.3010 <s> BENDER </s>
+-0.3010 <s> H </s>
+-0.3010 <s> HUH </s>
+-0.3010 <s> M </s>
+-0.3010 <s> MM </s>
+-0.3010 <s> NAO </s>
+-0.3010 <s> NEIN </s>
+-0.3010 <s> NEM </s>
+-0.3010 <s> NO </s>
+-0.3010 <s> NON </s>
+-0.3010 <s> NOPE </s>
+-0.3010 <s> S </s>
+-0.3010 <s> SS </s>
+-0.3010 <s> YAI </s>
+-0.3010 <s> YAS </s>
+-0.3010 <s> YEP </s>
+-0.3010 <s> YES </s>
+-0.3010 <s> YIS </s>
+-0.3010 <s> YUP </s>
+
+\end\
+
