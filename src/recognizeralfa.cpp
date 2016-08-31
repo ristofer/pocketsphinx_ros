@@ -1,8 +1,10 @@
 #include <ros/ros.h>
+
 #include <ros/package.h>
 
 #include <actionlib/server/simple_action_server.h>
 #include <pocketsphinx_ros/DoRecognitionAction.h>
+
 
 
 #include <sstream>
@@ -98,12 +100,12 @@ public:
             init_state_ = false;
         }
 
+
     ~Recognizer()
     {
         cmd_ln_free_r(config_);
         ps_free(ps_);
         init_state_ = false;
-        
     }
 
     void init()
@@ -129,6 +131,7 @@ public:
         }
 
         init_state_ = true;
+
     }
 
     void startUtt()
@@ -226,13 +229,15 @@ private:
     int16_t buf_[2048];
     ps_decoder_t *ps_;
     cmd_ln_t *config_;
-    
+
     std::string modeldir_;
     std::string grammardir_;
     std::string dictdir_;
     std::string threshold_;
+
     
     bool init_state_;
+
 
 
 
@@ -244,6 +249,7 @@ typedef boost::shared_ptr<Recognizer> RecognizerPtr;
 class RecognizerROS 
 {
 public:
+
     RecognizerROS():
         action_server_(nh_, "recognizer", boost::bind(&RecognizerROS::executeCB, this, _1), false),
         loop_rate_(100)
@@ -267,10 +273,12 @@ public:
         is_on_ = false;
     }
 
+
     ~RecognizerROS()
     {
 
     }
+
 
     void executeCB(const pocketsphinx_ros::DoRecognitionGoalConstPtr &goal)
     {
@@ -300,17 +308,22 @@ public:
     }
 
 
+
     void recognize()
     {
         uint8 utt_started;
         
+
         if (recognizer_->status() == false){return;}
+
         recognizer_->initDevice("alsa_input.usb-M-Audio_Producer_USB-00-USB.analog-stereo");
 
         recognizer_->startUtt();
         
         utt_started = FALSE;
+
         ROS_INFO_STREAM("Ready....");
+
 
         
         while(1){
@@ -318,8 +331,10 @@ public:
 
             recognizer_->readAudio();
             recognizer_->proccesRaw();
+
             feedback_.partial_result = recognizer_->getHyp();
             action_server_.publishFeedback(feedback_);
+
            
 
             in_speech_ = recognizer_->inSpeech();
@@ -327,7 +342,9 @@ public:
             if (in_speech_ && !utt_started) 
             {
                 utt_started = TRUE;
+
                 ROS_INFO_STREAM("Listening...");
+
             }
            
             
@@ -336,10 +353,12 @@ public:
             {
                 
                 recognizer_->endUtt();
+
                 ROS_INFO_STREAM("Finishing");
                 
                 
                 result_.final_result = recognizer_->getHyp();
+
 
                 break;
                /* if (final_result_ != NULL) 
@@ -354,12 +373,15 @@ public:
         }
         
         recognizer_->terminateDevice();
+
         action_server_.setSucceeded(result_);
         
+
      
     }
 
 private:
+
     ros::NodeHandle nh_;
     ros::Rate loop_rate_;
     AudioSource as_;
@@ -382,6 +404,7 @@ private:
     std::string partial_result_;
     
 
+
     RecognizerPtr recognizer_;
     bool in_speech_;
     bool is_on_;
@@ -392,6 +415,7 @@ private:
 
 int main(int argc, char *argv[])
 {
+
     ros::init(argc, argv, "recognizer");
     
   
@@ -401,12 +425,11 @@ int main(int argc, char *argv[])
     RecognizerROS r;
 
 
+
     
-    
-   
-        
     
     ros::spin();
+
     
     
     // loop_rate.sleep();
