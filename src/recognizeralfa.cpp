@@ -244,16 +244,29 @@ typedef boost::shared_ptr<Recognizer> RecognizerPtr;
 class RecognizerROS 
 {
 public:
-    RecognizerROS(RecognizerPtr recognizer):
-        recognizer_(recognizer),
+    RecognizerROS():
         action_server_(nh_, "recognizer", boost::bind(&RecognizerROS::executeCB, this, _1), false),
         loop_rate_(100)
     {
+        pkg_dir_= ros::package::getPath("pocketsphinx_ros");
+
+        updateDirectories("Stage1/Stage2gpsr");
+
+
+
+        recognizer_.reset(new Recognizer(&as_,
+        "/usr/local/share/pocketsphinx/model/en-us/en-us",
+        grammardir_,
+        dictdir_,
+        "2.0"));
+
+
         recognizer_->init();
         action_server_.start();
-        pkg_dir_= ros::package::getPath("pocketsphinx_ros");
+        
         is_on_ = false;
     }
+
     ~RecognizerROS()
     {
 
@@ -305,7 +318,7 @@ public:
 
             recognizer_->readAudio();
             recognizer_->proccesRaw();
-            feedback_.partial_result= recognizer_->getHyp();
+            feedback_.partial_result = recognizer_->getHyp();
             action_server_.publishFeedback(feedback_);
            
 
@@ -349,6 +362,8 @@ public:
 private:
     ros::NodeHandle nh_;
     ros::Rate loop_rate_;
+    AudioSource as_;
+
     actionlib::SimpleActionServer<pocketsphinx_ros::DoRecognitionAction> action_server_;
 
     pocketsphinx_ros::DoRecognitionFeedback feedback_;
@@ -379,17 +394,11 @@ int main(int argc, char *argv[])
 {
     ros::init(argc, argv, "recognizer");
     
-    
-    AudioSource as;
+  
     
 
-    RecognizerPtr recognizer( new Recognizer(&as,
-        "/usr/local/share/pocketsphinx/model/en-us/en-us",
-        "/home/robotica/bender_ws/soft_ws/src/bender_hri/pocketsphinx_ros/Grammar/Stage1/Stage2gpsr.jsgf",
-        "/home/robotica/bender_ws/soft_ws/src/bender_hri/pocketsphinx_ros/Grammar/Stage1/Stage2gpsr.dic",
-        "2.0"));
-    
-    RecognizerROS r(recognizer);
+
+    RecognizerROS r;
 
 
     
