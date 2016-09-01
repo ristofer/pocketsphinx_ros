@@ -13,6 +13,7 @@ find_package(catkin REQUIRED COMPONENTS
   actionlib_msgs
   actionlib
   bender_srvs
+  dynamic_reconfigure
 )
 
 ## System dependencies are found with CMake's conventions
@@ -94,11 +95,10 @@ add_action_files(
 ##   * uncomment the "generate_dynamic_reconfigure_options" section below
 ##     and list every .cfg file to be processed
 
-## Generate dynamic reconfigure parameters in the 'cfg' folder
-# generate_dynamic_reconfigure_options(
-#   cfg/DynReconf1.cfg
-#   cfg/DynReconf2.cfg
-# )
+
+ generate_dynamic_reconfigure_options(
+   cfg/SpeechRecognition.cfg
+ )
 
 ###################################
 ## catkin specific configuration ##

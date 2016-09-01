@@ -199,7 +199,12 @@ public:
     {
         grammardir_ = grammardir;
         ps_set_jsgf_file(ps_,"grammar_search",grammardir_.c_str());    
+        ps_set_search(ps_,"grammar_search");
     }
+
+    
+
+
 
     void setThreshold(const std::string& threshold)
     {
