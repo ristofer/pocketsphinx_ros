@@ -12,7 +12,7 @@ find_package(catkin REQUIRED COMPONENTS
   message_generation
   actionlib_msgs
   actionlib
-  bender_srvs
+
   dynamic_reconfigure
 )
 
