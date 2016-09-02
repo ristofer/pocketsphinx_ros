@@ -100,12 +100,12 @@ public:
         grammardir_(grammardir),
         dictdir_(dictdir)
         {
-            threshold_ = boost::to_string(vad_thres);
+            threshold_ = boost::lexical_cast<std::string>(vad_thres);
             prespeech_ = boost::to_string(vad_pre);
             postspeech_ = boost::to_string(vad_post);
             startspeech_ = boost::to_string(vad_start);
-            
-
+           
+            ROS_INFO_STREAM(threshold_.c_str());
 
 
             config_ = cmd_ln_init(NULL, ps_args(), TRUE,
@@ -284,7 +284,10 @@ public:
 
         updateDirectories("Stage1/Stage2gpsr");
 
-
+        vad_thres_ = 2.0;
+        vad_pre_ = 20;
+        vad_post_ = 50;
+        vad_start_ = 10;
 
         recognizer_.reset(new Recognizer(&as_,
         "/usr/local/share/pocketsphinx/model/en-us/en-us",
