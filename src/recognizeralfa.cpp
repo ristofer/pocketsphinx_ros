@@ -4,8 +4,9 @@
 
 #include <actionlib/server/simple_action_server.h>
 #include <pocketsphinx_ros/DoRecognitionAction.h>
+#include <pocketsphinx_ros/SpeechRecognitionConfig.h>
 
-
+#include <dynamic_reconfigure/server.h>
 
 #include <sstream>
 
@@ -90,18 +91,31 @@ public:
                std::string modeldir, 
                std::string grammardir, 
                std::string dictdir, 
-               std::string threshold):
+               double vad_thres,
+               int vad_pre,
+               int vad_post,
+               int vad_start):
         as_(as),
         modeldir_(modeldir),
         grammardir_(grammardir),
-        dictdir_(dictdir),
-        threshold_(threshold)
+        dictdir_(dictdir)
         {
+            threshold_ = boost::to_string(vad_thres);
+            prespeech_ = boost::to_string(vad_pre);
+            postspeech_ = boost::to_string(vad_post);
+            startspeech_ = boost::to_string(vad_start);
+            
+
+
+
             config_ = cmd_ln_init(NULL, ps_args(), TRUE,
             "-hmm", modeldir_.c_str(),
             "-jsgf",grammardir_.c_str(),
             "-dict",dictdir_.c_str() ,
-            "-vad_threshold",threshold_.c_str(),    
+            "-vad_threshold",threshold_.c_str(),
+            "-vad_prespeech",prespeech_.c_str(),
+            "-vad_postspeech",postspeech_.c_str(),
+            "-vad_startspeech",startspeech_.c_str(),    
             "-remove_noise","yes",
             NULL);
             
@@ -243,6 +257,9 @@ private:
     std::string grammardir_;
     std::string dictdir_;
     std::string threshold_;
+    std::string prespeech_;
+    std::string postspeech_;
+    std::string startspeech_;
 
     
     bool init_state_;
@@ -273,7 +290,13 @@ public:
         "/usr/local/share/pocketsphinx/model/en-us/en-us",
         grammardir_,
         dictdir_,
-        "2.0"));
+        vad_thres_,
+        vad_pre_,
+        vad_post_,
+        vad_start_));
+
+
+        reconfigureCallback = boost::bind(&RecognizerROS::dynamicCallback,this, _1, _2);
 
 
         action_server_.start();
@@ -299,8 +322,13 @@ public:
         //recognizer_->update();
         recognize();
 
+    }
+    void dynamicCallback(pocketsphinx_ros::SpeechRecognitionConfig &config,uint32_t level)
+    {
 
     }
+
+    
 
     void updateDirectories(std::string dictionary)
     {
@@ -403,6 +431,14 @@ private:
     pocketsphinx_ros::DoRecognitionFeedback feedback_;
     pocketsphinx_ros::DoRecognitionResult result_;
 
+    
+    dynamic_reconfigure::Server<pocketsphinx_ros::SpeechRecognitionConfig> ParameterServer;
+    dynamic_reconfigure::Server<pocketsphinx_ros::SpeechRecognitionConfig>::CallbackType reconfigureCallback;
+
+
+
+
+
     std::string pkg_dir_;
 
 
@@ -411,6 +447,13 @@ private:
     std::string grammardir_;
     std::string dictdir_;
     std::string threshold_;
+
+    double vad_thres_;
+    int vad_pre_;
+    int vad_post_;
+    int vad_start_;
+    
+
 
     std::string final_result_;
     std::string partial_result_;
