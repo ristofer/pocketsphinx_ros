@@ -1,6 +1,6 @@
 #include <ros/ros.h>
 
-#include <ros/package.h>
+#include <boost/thread/thread.hpp>
 
 #include <actionlib/server/simple_action_server.h>
 #include <pocketsphinx_ros/DoRecognitionAction.h>
@@ -231,6 +231,54 @@ public:
         return init_state_;
     }
 
+    void update()
+    {
+        if(init_state_){
+        cmd_ln_free_r(config_);
+        ps_free(ps_);
+        init_state_ = false;
+        }
+        //init();
+    }
+
+    // void init(double vad_thres, int vad_pre, int vad_post, int vad_start)
+    // {
+            
+    //     threshold_ = boost::lexical_cast<std::string>(vad_thres);
+    //     prespeech_ = boost::to_string(vad_pre);
+    //     postspeech_ = boost::to_string(vad_post);
+    //     startspeech_ = boost::to_string(vad_start);
+       
+    //     ROS_INFO_STREAM(threshold_.c_str());
+
+
+    //     config_ = cmd_ln_init(NULL, ps_args(), TRUE,
+    //     "-hmm", modeldir_.c_str(),
+    //     "-jsgf",grammardir_.c_str(),
+    //     "-dict",dictdir_.c_str() ,
+    //     "-vad_threshold",threshold_.c_str(),
+    //     "-vad_prespeech",prespeech_.c_str(),
+    //     "-vad_postspeech",postspeech_.c_str(),
+    //     "-vad_startspeech",startspeech_.c_str(),    
+    //     "-remove_noise","yes",
+    //     NULL);
+        
+    //     if (config_ == NULL)
+    //     {
+    //         fprintf(stderr, "Failed to create config object, see log for details\n");
+    //         //return -1;
+    //     }
+
+    //     ps_ = ps_init(config_);
+    //     if (ps_ == NULL) 
+    //     {
+    //         fprintf(stderr, "Failed to create recognizer, see log for details\n");
+    //     }
+
+    //     init_state_ = true;
+
+    // }
+
     std::string getSearch()
     {
         
@@ -277,34 +325,39 @@ class RecognizerROS
 public:
 
     RecognizerROS():
-        action_server_(nh_, "recognizer", boost::bind(&RecognizerROS::executeCB, this, _1), false),
+        nh_("~"),
+        actionServer_(nh_, "recognizer", boost::bind(&RecognizerROS::executeCB, this, _1), false),
         loop_rate_(100)
     {
-        pkg_dir_= ros::package::getPath("pocketsphinx_ros");
+        is_on_ = false;
+
+        
+        if(nh_.hasParam("hmmdir"))
+        {
+            nh_.getParam("hmmdir",hmmdir_);
+        }
+        if(nh_.hasParam("packagedir"))
+        {
+        nh_.getParam("packagedir",pkg_dir_);
+        }
+       
+        
 
         updateDirectories("Stage1/Stage2gpsr");
 
-        vad_thres_ = 2.0;
-        vad_pre_ = 20;
-        vad_post_ = 50;
-        vad_start_ = 10;
+ 
 
-        recognizer_.reset(new Recognizer(&as_,
-        "/usr/local/share/pocketsphinx/model/en-us/en-us",
-        grammardir_,
-        dictdir_,
-        vad_thres_,
-        vad_pre_,
-        vad_post_,
-        vad_start_));
-
-
-        reconfigureCallback = boost::bind(&RecognizerROS::dynamicCallback,this, _1, _2);
-
-
-        action_server_.start();
         
-        is_on_ = false;
+        actionServer_.start();
+        reconfigureCallback_ = boost::bind(&RecognizerROS::dynamicCallback,this, _1, _2);
+        parameterServer_.setCallback(reconfigureCallback_);
+        
+        
+
+         
+       
+        
+        
     }
 
 
@@ -328,7 +381,40 @@ public:
     }
     void dynamicCallback(pocketsphinx_ros::SpeechRecognitionConfig &config,uint32_t level)
     {
+        
+        
+        // pkg_dir_= ros::package::getPath("pocketsphinx_ros");
 
+        // updateDirectories("Stage1/Stage2gpsr");
+        while(is_on_){};
+        vad_thres_ = config.vad_threshold;
+        vad_pre_ = config.vad_prespeech;
+        vad_post_ = config.vad_postspeech;
+        vad_start_ = config.vad_startspeech;
+        //boost::thread thread_b(&RecognizerROS::resetRecognizer,this);
+        resetRecognizer();
+        // recognizer_.reset(new Recognizer(&as_,
+        // "/usr/local/share/pocketsphinx/model/en-us/en-us",
+        // grammardir_,
+        // dictdir_,
+        // vad_thres_,
+        // vad_pre_,
+        // vad_post_,
+        // vad_start_));
+    }
+
+    void resetRecognizer()
+    {
+  
+
+        recognizer_.reset(new Recognizer(&as_,
+        hmmdir_,
+        grammardir_,
+        dictdir_,
+        vad_thres_,
+        vad_pre_,
+        vad_post_,
+        vad_start_));
     }
 
     
@@ -353,6 +439,7 @@ public:
         uint8 utt_started;
         std::string search_name;
 
+        is_on_ = true;
         if (recognizer_->status() == false){return;}
 
         recognizer_->initDevice("alsa_input.usb-M-Audio_Producer_USB-00-USB.analog-stereo");
@@ -376,7 +463,7 @@ public:
             recognizer_->proccesRaw();
 
             feedback_.partial_result = recognizer_->getHyp();
-            action_server_.publishFeedback(feedback_);
+            actionServer_.publishFeedback(feedback_);
 
            
 
@@ -417,9 +504,8 @@ public:
         
         recognizer_->terminateDevice();
 
-        action_server_.setSucceeded(result_);
-        
-
+        actionServer_.setSucceeded(result_);
+        is_on_=false;
      
     }
 
@@ -429,14 +515,14 @@ private:
     ros::Rate loop_rate_;
     AudioSource as_;
 
-    actionlib::SimpleActionServer<pocketsphinx_ros::DoRecognitionAction> action_server_;
+    actionlib::SimpleActionServer<pocketsphinx_ros::DoRecognitionAction> actionServer_;
 
     pocketsphinx_ros::DoRecognitionFeedback feedback_;
     pocketsphinx_ros::DoRecognitionResult result_;
 
     
-    dynamic_reconfigure::Server<pocketsphinx_ros::SpeechRecognitionConfig> ParameterServer;
-    dynamic_reconfigure::Server<pocketsphinx_ros::SpeechRecognitionConfig>::CallbackType reconfigureCallback;
+    dynamic_reconfigure::Server<pocketsphinx_ros::SpeechRecognitionConfig> parameterServer_;
+    dynamic_reconfigure::Server<pocketsphinx_ros::SpeechRecognitionConfig>::CallbackType reconfigureCallback_;
 
 
 
@@ -445,7 +531,7 @@ private:
     std::string pkg_dir_;
 
 
-
+    std::string hmmdir_;
     std::string modeldir_;
     std::string grammardir_;
     std::string dictdir_;

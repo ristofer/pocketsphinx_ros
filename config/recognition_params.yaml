@@ -1,0 +1,32 @@
+# Diccionarios disponibles para el reconocimiento
+available_dictionaries:
+    confirmation: ["conf/confirmation",'fsg']
+    go_on: ["commands/go_on",'fsg']
+    name: ["general/names/name_dic",'fsg']
+    drink: ["general/drinks/drinks_dic",'fsg']
+    object: ["general/objects/objects_dic",'fsg']
+    move_order: ["nav_order/move",'fsg']
+    gpsr: ["Sta[ge1/gpsr/gpsr",'fsg']
+    gpsr_c1: ["Stage1/gpsr/Stage1gpsr",'fsg']
+    gpsr_c2: ["Stage1/gpsr/Stage2gpsr",'fsg']
+    wdys: ["Stage1/wdys/wdys",'fsg']
+    quest: ["Stage1/sradt/questions",'fsg']
+    questlm: ["Stage1/sradt/questions",'lm']
+    s2_wakeme: ["Stage2/WakeMeUp/wakemedicc",'fsg']
+
+# Parámetros del microfono del PC si se quiere ocupar
+mic_0:
+    device: ''
+    gain: "10.0" # entre 0 y 60
+
+# Parámetros del reconocedor 1, usa m-audio para atras
+mic_1: 
+    device: ''
+    gain: "15.0" # entre 0 y 60
+    vad_threshold: 'auto' # 'auto' para auto_threshold, entre 0.001 y 0.1 para analizar
+
+# Parámetros del reconocedor 2 solo si es necesario , usa asus para adelante
+mic_2:
+    device: ''
+    gain: "15.0" # entre 0 y 60
+    vad_threshold: 'auto'

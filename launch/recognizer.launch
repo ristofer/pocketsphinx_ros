@@ -1,0 +1,16 @@
+<launch>
+    <arg name = "package" default="pocketsphinx_ros"/>
+    <arg name="mic_name"    default="alsa_input.usb-M-Audio_Producer_USB-00-USB.analog-stereo"/> <!-- Microfono de atras (m-audio)-->
+    <arg name="hmmdir"             default="/usr/local/share/pocketsphinx/model/en-us/en-us"/> <!-- en-us-adapt -->
+    <arg name="packagedir" default="$(find pocketsphinx_ros)"/>
+
+    <!-- Recognizer -->
+    <node name="recognizer" pkg="$(arg package)" type="recognizeralfa"  respawn="false" output="screen">
+        <rosparam file="$(find pocketsphinx_ros)/config/recognition_params.yaml" command="load"/>
+        <param name="mic_name"    value="$(arg mic_name)"/>
+        <param name="hmmdir"           value="$(arg hmmdir)"/>
+        <param name="packagedir"    value="$(arg packagedir)"/>
+    </node>
+
+
+</launch>

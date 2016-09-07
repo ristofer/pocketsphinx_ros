@@ -13,7 +13,7 @@ import pocketsphinx_ros.msg
 def tester_client():
     # Creates the SimpleActionClient, passing the type of the action
     # (FibonacciAction) to the constructor.
-    client = actionlib.SimpleActionClient('recognizer', pocketsphinx_ros.msg.DoRecognitionAction)
+    client = actionlib.SimpleActionClient('/recognizer/recognizer', pocketsphinx_ros.msg.DoRecognitionAction)
 
     # Waits until the action server has started up and started
     # listening for goals.
