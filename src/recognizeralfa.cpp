@@ -238,46 +238,10 @@ public:
         ps_free(ps_);
         init_state_ = false;
         }
-        //init();
+        
     }
 
-    // void init(double vad_thres, int vad_pre, int vad_post, int vad_start)
-    // {
-            
-    //     threshold_ = boost::lexical_cast<std::string>(vad_thres);
-    //     prespeech_ = boost::to_string(vad_pre);
-    //     postspeech_ = boost::to_string(vad_post);
-    //     startspeech_ = boost::to_string(vad_start);
-       
-    //     ROS_INFO_STREAM(threshold_.c_str());
-
-
-    //     config_ = cmd_ln_init(NULL, ps_args(), TRUE,
-    //     "-hmm", modeldir_.c_str(),
-    //     "-jsgf",grammardir_.c_str(),
-    //     "-dict",dictdir_.c_str() ,
-    //     "-vad_threshold",threshold_.c_str(),
-    //     "-vad_prespeech",prespeech_.c_str(),
-    //     "-vad_postspeech",postspeech_.c_str(),
-    //     "-vad_startspeech",startspeech_.c_str(),    
-    //     "-remove_noise","yes",
-    //     NULL);
-        
-    //     if (config_ == NULL)
-    //     {
-    //         fprintf(stderr, "Failed to create config object, see log for details\n");
-    //         //return -1;
-    //     }
-
-    //     ps_ = ps_init(config_);
-    //     if (ps_ == NULL) 
-    //     {
-    //         fprintf(stderr, "Failed to create recognizer, see log for details\n");
-    //     }
-
-    //     init_state_ = true;
-
-    // }
+ 
 
     std::string getSearch()
     {
@@ -338,10 +302,13 @@ public:
         }
         if(nh_.hasParam("packagedir"))
         {
-        nh_.getParam("packagedir",pkg_dir_);
+            nh_.getParam("packagedir",pkg_dir_);
         }
        
-        
+        if(nh_.hasParam("mic_name"))
+        {
+            nh_.getParam("mic_name",mic_name_);
+        }
 
         updateDirectories("Stage1/Stage2gpsr");
 
@@ -386,7 +353,7 @@ public:
         // pkg_dir_= ros::package::getPath("pocketsphinx_ros");
 
         // updateDirectories("Stage1/Stage2gpsr");
-        while(is_on_){};
+        while(is_on_ && ros::ok()){};
         vad_thres_ = config.vad_threshold;
         vad_pre_ = config.vad_prespeech;
         vad_post_ = config.vad_postspeech;
@@ -442,7 +409,7 @@ public:
         is_on_ = true;
         if (recognizer_->status() == false){return;}
 
-        recognizer_->initDevice("alsa_input.usb-M-Audio_Producer_USB-00-USB.analog-stereo");
+        recognizer_->initDevice(mic_name_);
 
         recognizer_->startUtt();
         
@@ -536,6 +503,7 @@ private:
     std::string grammardir_;
     std::string dictdir_;
     std::string threshold_;
+    std::string mic_name_;
 
     double vad_thres_;
     int vad_pre_;
