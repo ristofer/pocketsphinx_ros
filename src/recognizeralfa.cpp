@@ -456,7 +456,7 @@ public:
 
 
         
-        while(1){
+        while(ros::ok()){
             
 
             recognizer_->readAudio();
