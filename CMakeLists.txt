@@ -109,10 +109,13 @@ add_action_files(
 ## LIBRARIES: libraries you create in this project that dependent projects also need
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
+
+
+
 catkin_package(
-#  INCLUDE_DIRS include
+  INCLUDE_DIRS include
 #  LIBRARIES pocketsphinx_ros
-#  CATKIN_DEPENDS roscpp rospy std_msgs
+  CATKIN_DEPENDS roscpp rospy std_msgs message_generation actionlib_msgs actionlib dynamic_reconfigure
 #  DEPENDS system_lib
 )
 
@@ -151,6 +154,13 @@ add_executable(recognizergamma src/recognizergamma.cpp)
 add_dependencies(recognizergamma ${catkin_EXPORTED_TARGETS})
 target_link_libraries(recognizergamma ${catkin_LIBRARIES} ${Boost_LIBRARIES} pocketsphinx sphinxbase sphinxad pulse pulse-simple)
 
+
+## - - - RecognizerROS- - - 
+add_executable(RecognizerROS src/RecognizerROS.cpp)
+add_dependencies(RecognizerROS ${catkin_EXPORTED_TARGETS})
+target_link_libraries(RecognizerROS ${catkin_LIBRARIES} ${Boost_LIBRARIES} pocketsphinx sphinxbase sphinxad pulse pulse-simple)
+
+
 ## - - - tester - - - 
 add_executable(tester src/tester.cpp)
 add_dependencies(
@@ -164,6 +174,9 @@ target_link_libraries(
 
 
 
+install(DIRECTORY include/${PROJECT_NAME}/
+    DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
+)
 
 
 
