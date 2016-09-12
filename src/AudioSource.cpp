@@ -1,5 +1,4 @@
-#include <pocketsphinx_ros/AudioSource.hpp>
-
+#include "pocketsphinx_ros/AudioSource.h"
 
 AudioSource::AudioSource(){}
 AudioSource::~AudioSource(){}

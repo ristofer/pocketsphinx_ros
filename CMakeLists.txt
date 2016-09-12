@@ -113,7 +113,7 @@ generate_dynamic_reconfigure_options(
 catkin_package(
   INCLUDE_DIRS include
 #  LIBRARIES pocketsphinx_ros
-  CATKIN_DEPENDS roscpp rospy std_msgs message_generation actionlib_msgs actionlib dynamic_reconfigure
+  CATKIN_DEPENDS roscpp rospy std_msgs message_runtime actionlib_msgs actionlib dynamic_reconfigure
 #  DEPENDS system_lib
 )
 
@@ -133,25 +133,29 @@ include_directories(
 
 ## - - - recognizer - - - 
 add_executable(recognizer src/recognizer.cpp)
-add_dependencies(recognizer ${catkin_EXPORTED_TARGETS})
+add_dependencies(recognizer ${${PROJECT_NAME}_EXPORTED_TARGETS})
 target_link_libraries(recognizer ${catkin_LIBRARIES} ${Boost_LIBRARIES} ${PocketSphinx_LIBRARIES} ${SphinxBase_LIBRARIES} ${SphinxAD_LIBRARIES})
 
 
 ## - - - recognizeralfa - - - 
 add_executable(recognizeralfa src/recognizeralfa.cpp)
-add_dependencies(recognizeralfa ${catkin_EXPORTED_TARGETS})
+add_dependencies(recognizeralfa ${${PROJECT_NAME}_EXPORTED_TARGETS})
 target_link_libraries(recognizeralfa ${catkin_LIBRARIES} ${Boost_LIBRARIES} ${PocketSphinx_LIBRARIES} ${SphinxBase_LIBRARIES} ${SphinxAD_LIBRARIES})
 
 ## - - - recognizergamma- - - 
 add_executable(recognizergamma src/recognizergamma.cpp)
-add_dependencies(recognizergamma ${catkin_EXPORTED_TARGETS})
+add_dependencies(recognizergamma ${${PROJECT_NAME}_EXPORTED_TARGETS})
 target_link_libraries(recognizergamma ${catkin_LIBRARIES} ${Boost_LIBRARIES} ${PocketSphinx_LIBRARIES} ${SphinxBase_LIBRARIES} ${SphinxAD_LIBRARIES})
 
 
 ## - - - RecognizerROS- - - 
-add_executable(RecognizerROS src/RecognizerROS.cpp)
-add_dependencies(RecognizerROS ${catkin_EXPORTED_TARGETS})
-target_link_libraries(RecognizerROS ${catkin_LIBRARIES} ${Boost_LIBRARIES} pocketsphinx sphinxbase sphinxad pulse pulse-simple)
+add_executable(RecognizerROS
+  src/RecognizerROS.cpp
+  src/Recognizer.cpp
+  src/AudioSource.cpp
+)
+add_dependencies(RecognizerROS ${${PROJECT_NAME}_EXPORTED_TARGETS})
+target_link_libraries(RecognizerROS ${catkin_LIBRARIES} ${Boost_LIBRARIES} ${PocketSphinx_LIBRARIES} ${SphinxBase_LIBRARIES} ${SphinxAD_LIBRARIES})
 
 
 ## - - - tester - - - 

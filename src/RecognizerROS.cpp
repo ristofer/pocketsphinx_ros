@@ -1,4 +1,4 @@
-#include <pocketsphinx_ros/RecognizerROS.hpp>
+#include "pocketsphinx_ros/RecognizerROS.h"
 
 
 RecognizerROS::RecognizerROS():
@@ -25,9 +25,6 @@ RecognizerROS::RecognizerROS():
 
     updateDirectories("Stage1/Stage2gpsr");
 
-
-
-    
     actionServer_.start();
     reconfigureCallback_ = boost::bind(&RecognizerROS::dynamicCallback,this, _1, _2);
     parameterServer_.setCallback(reconfigureCallback_);
@@ -79,8 +76,6 @@ void RecognizerROS::dynamicCallback(pocketsphinx_ros::SpeechRecognitionConfig &c
 
 void RecognizerROS::resetRecognizer()
 {
-
-
     recognizer_.reset(new Recognizer(&as_,
     hmmdir_,
     grammardir_,
@@ -185,25 +180,9 @@ void RecognizerROS::recognize()
 
 int main(int argc, char *argv[])
 {
-
     ros::init(argc, argv, "recognizer");
-    
-  
-    
-
-
-    RecognizerROS r;
-
-
-
-    
-    
+    RecognizerROS r; 
     ros::spin();
-
-    
-    
     // loop_rate.sleep();
-
     return 0;
-
 }

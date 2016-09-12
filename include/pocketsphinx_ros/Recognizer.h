@@ -3,14 +3,8 @@
 
 
 #include <sphinxbase/err.h>
-
 #include "pocketsphinx.h"
-
-#include <stdio.h>
-#include <string.h>
-#include <assert.h>
-
-#include <pocketsphinx_ros/AudioSource.hpp>
+#include "pocketsphinx_ros/AudioSource.h"
 
 class Recognizer
 {
@@ -38,7 +32,6 @@ public:
     bool status();
     void update();
     std::string getSearch();
-
      
 private:
     AudioSource *as_;
@@ -53,12 +46,8 @@ private:
     std::string prespeech_;
     std::string postspeech_;
     std::string startspeech_;
-
     
     bool init_state_;
-
-
-
 
 };
 

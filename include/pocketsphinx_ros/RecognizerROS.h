@@ -14,12 +14,7 @@
 
 #include <sstream>
 
-
-#include <stdio.h>
-#include <string.h>
-#include <assert.h>
-
-#include <pocketsphinx_ros/Recognizer.hpp>
+#include "pocketsphinx_ros/Recognizer.h"
 
 typedef boost::shared_ptr<Recognizer> RecognizerPtr;
 

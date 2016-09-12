@@ -4,9 +4,7 @@
 #include <sphinxbase/ad.h>
 #include <sphinxbase/err.h>
 
-#include <stdio.h>
-#include <string.h>
-#include <assert.h>
+#include <string>
 
 class AudioSource
 {
@@ -26,7 +24,5 @@ public:
     int32 k();
 	void closeDevice();
 };
-
-
 
 #endif /* AUDIOSOURCE_HPP_ */

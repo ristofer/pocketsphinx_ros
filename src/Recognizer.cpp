@@ -1,4 +1,5 @@
-#include <pocketsphinx_ros/Recognizer.hpp>
+#include "pocketsphinx_ros/Recognizer.h"
+#include <boost/lexical_cast.hpp>
 
 Recognizer::Recognizer(AudioSource *as, 
            std::string modeldir, 
@@ -14,11 +15,11 @@ Recognizer::Recognizer(AudioSource *as,
     dictdir_(dictdir)
     {
         threshold_ = boost::lexical_cast<std::string>(vad_thres);
-        prespeech_ = boost::to_string(vad_pre);
-        postspeech_ = boost::to_string(vad_post);
-        startspeech_ = boost::to_string(vad_start);
+        prespeech_ = boost::lexical_cast<std::string>(vad_pre);
+        postspeech_ = boost::lexical_cast<std::string>(vad_post);
+        startspeech_ = boost::lexical_cast<std::string>(vad_start);
        
-        ROS_INFO_STREAM(threshold_.c_str());
+        //ROS_INFO_STREAM(threshold_.c_str());
 
 
         config_ = cmd_ln_init(NULL, ps_args(), TRUE,

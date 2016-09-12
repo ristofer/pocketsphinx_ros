@@ -1,5 +1,5 @@
 <launch>
-    <arg name = "package" default="pocketsphinx_ros"/>
+    <arg name="package" default="pocketsphinx_ros"/>
     <arg name="mic_name"    default="alsa_input.usb-M-Audio_Producer_USB-00-USB.analog-stereo"/> <!-- Microfono de atras (m-audio)-->
     <arg name="hmmdir"             default="/usr/local/share/pocketsphinx/model/en-us/en-us"/> <!-- en-us-adapt -->
     <arg name="packagedir" default="$(find pocketsphinx_ros)"/>
