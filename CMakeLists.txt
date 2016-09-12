@@ -4,6 +4,9 @@ project(pocketsphinx_ros)
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
+list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
+find_package(PocketSphinx)
+find_package(SphinxBase)
 find_package(catkin REQUIRED COMPONENTS
   roscpp
   roslib
@@ -12,7 +15,6 @@ find_package(catkin REQUIRED COMPONENTS
   message_generation
   actionlib_msgs
   actionlib
-
   dynamic_reconfigure
 )
 
@@ -23,9 +25,6 @@ find_package(Boost REQUIRED COMPONENTS system signals thread)
 ## Uncomment this if the package has a setup.py. This macro ensures
 ## modules and global scripts declared therein get installed
 ## See http://ros.org/doc/api/catkin/html/user_guide/setup_dot_py.html
-
-
-
 catkin_python_setup()
 
 
@@ -61,25 +60,24 @@ catkin_python_setup()
 # )
 
 ## Generate services in the 'srv' folder
- add_service_files(
-   FILES
-   RecognitionOrder.srv
- )
-
-
-add_action_files(
-   DIRECTORY 
-   action
-   FILES
-   DoRecognition.action
+add_service_files(
+  FILES
+  RecognitionOrder.srv
 )
 
 
- generate_messages(
-   DEPENDENCIES
-   actionlib_msgs
-   
- )
+add_action_files(
+  DIRECTORY 
+  action
+  FILES
+  DoRecognition.action
+)
+
+
+generate_messages(
+  DEPENDENCIES
+  actionlib_msgs
+)
 
 ################################################
 ## Declare ROS dynamic reconfigure parameters ##
@@ -96,9 +94,9 @@ add_action_files(
 ##     and list every .cfg file to be processed
 
 
- generate_dynamic_reconfigure_options(
-   cfg/SpeechRecognition.cfg
- )
+generate_dynamic_reconfigure_options(
+  cfg/SpeechRecognition.cfg
+)
 
 ###################################
 ## catkin specific configuration ##
@@ -126,30 +124,25 @@ catkin_package(
 include_directories(
   include
   ${catkin_INCLUDE_DIRS}
-  /usr/local/include/sphinxbase/
-  /usr/local/include/pocketsphinx/
+  ${SphinxBase_INCLUDE_DIRS}
+  ${PocketSphinx_INCLUDE_DIRS}
 )
-
-link_directories(
-  /usr/local/lib
-)
-
 
 ## - - - recognizer - - - 
 add_executable(recognizer src/recognizer.cpp)
 add_dependencies(recognizer ${catkin_EXPORTED_TARGETS})
-target_link_libraries(recognizer ${catkin_LIBRARIES} ${Boost_LIBRARIES} pocketsphinx sphinxbase sphinxad pulse pulse-simple)
+target_link_libraries(recognizer ${catkin_LIBRARIES} ${Boost_LIBRARIES} ${PocketSphinx_LIBRARIES} ${SphinxBase_LIBRARIES} ${SphinxAD_LIBRARIES})
 
 
 ## - - - recognizeralfa - - - 
 add_executable(recognizeralfa src/recognizeralfa.cpp)
 add_dependencies(recognizeralfa ${catkin_EXPORTED_TARGETS})
-target_link_libraries(recognizeralfa ${catkin_LIBRARIES} ${Boost_LIBRARIES} pocketsphinx sphinxbase sphinxad pulse pulse-simple)
+target_link_libraries(recognizeralfa ${catkin_LIBRARIES} ${Boost_LIBRARIES} ${PocketSphinx_LIBRARIES} ${SphinxBase_LIBRARIES} ${SphinxAD_LIBRARIES})
 
 ## - - - recognizergamma- - - 
 add_executable(recognizergamma src/recognizergamma.cpp)
 add_dependencies(recognizergamma ${catkin_EXPORTED_TARGETS})
-target_link_libraries(recognizergamma ${catkin_LIBRARIES} ${Boost_LIBRARIES} pocketsphinx sphinxbase sphinxad pulse pulse-simple)
+target_link_libraries(recognizergamma ${catkin_LIBRARIES} ${Boost_LIBRARIES} ${PocketSphinx_LIBRARIES} ${SphinxBase_LIBRARIES} ${SphinxAD_LIBRARIES})
 
 ## - - - tester - - - 
 add_executable(tester src/tester.cpp)
