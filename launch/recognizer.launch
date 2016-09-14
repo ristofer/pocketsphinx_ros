@@ -5,7 +5,7 @@
     <arg name="packagedir" default="$(find pocketsphinx_ros)"/>
 
     <!-- Recognizer -->
-    <node name="recognizer" pkg="$(arg package)" type="recognizeralfa"  respawn="false" output="screen">
+    <node name="recognizer" pkg="$(arg package)" type="RecognizerROS"  respawn="false" output="screen">
         <rosparam file="$(find pocketsphinx_ros)/config/recognition_params.yaml" command="load"/>
         <param name="mic_name"    value="$(arg mic_name)"/>
         <param name="hmmdir"           value="$(arg hmmdir)"/>
