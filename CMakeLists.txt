@@ -131,43 +131,23 @@ include_directories(
   ${PocketSphinx_INCLUDE_DIRS}
 )
 
-## - - - recognizer - - - 
-add_executable(recognizer src/recognizer.cpp)
-add_dependencies(recognizer ${${PROJECT_NAME}_EXPORTED_TARGETS})
-target_link_libraries(recognizer ${catkin_LIBRARIES} ${Boost_LIBRARIES} ${PocketSphinx_LIBRARIES} ${SphinxBase_LIBRARIES} ${SphinxAD_LIBRARIES})
-
-
-## - - - recognizeralfa - - - 
-add_executable(recognizeralfa src/recognizeralfa.cpp)
-add_dependencies(recognizeralfa ${${PROJECT_NAME}_EXPORTED_TARGETS})
-target_link_libraries(recognizeralfa ${catkin_LIBRARIES} ${Boost_LIBRARIES} ${PocketSphinx_LIBRARIES} ${SphinxBase_LIBRARIES} ${SphinxAD_LIBRARIES})
-
-## - - - recognizergamma- - - 
-add_executable(recognizergamma src/recognizergamma.cpp)
-add_dependencies(recognizergamma ${${PROJECT_NAME}_EXPORTED_TARGETS})
-target_link_libraries(recognizergamma ${catkin_LIBRARIES} ${Boost_LIBRARIES} ${PocketSphinx_LIBRARIES} ${SphinxBase_LIBRARIES} ${SphinxAD_LIBRARIES})
-
 
 ## - - - RecognizerROS- - - 
 add_executable(RecognizerROS
   src/RecognizerROS.cpp
   src/Recognizer.cpp
   src/AudioSource.cpp
+  src/Exceptions.cpp
 )
 add_dependencies(RecognizerROS ${${PROJECT_NAME}_EXPORTED_TARGETS})
 target_link_libraries(RecognizerROS ${catkin_LIBRARIES} ${Boost_LIBRARIES} ${PocketSphinx_LIBRARIES} ${SphinxBase_LIBRARIES} ${SphinxAD_LIBRARIES})
 
 
-## - - - tester - - - 
-add_executable(tester src/tester.cpp)
-add_dependencies(
-  tester
-  ${catkin_EXPORTED_TARGETS}
+## - - - open_device_error- - -
+add_executable(open_device_error
+	src/open_device_error.cpp
 )
-target_link_libraries( 
-  tester
-  ${catkin_LIBRARIES}
-)
+add_dependencies(open_device_error ${${PROJECT_NAME}_EXPORTED_TARGETS})
 
 
 

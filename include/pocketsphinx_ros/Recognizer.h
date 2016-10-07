@@ -5,6 +5,7 @@
 #include <sphinxbase/err.h>
 #include "pocketsphinx.h"
 #include "pocketsphinx_ros/AudioSource.h"
+#include "pocketsphinx_ros/Exceptions.h"
 
 class Recognizer
 {

@@ -3,6 +3,7 @@
 
 #include <sphinxbase/ad.h>
 #include <sphinxbase/err.h>
+#include "pocketsphinx_ros/Exceptions.h"
 
 #include <string>
 

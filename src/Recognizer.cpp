@@ -1,5 +1,6 @@
 #include "pocketsphinx_ros/Recognizer.h"
 #include <boost/lexical_cast.hpp>
+#include "pocketsphinx_ros/Exceptions.h"
 
 Recognizer::Recognizer(AudioSource *as, 
            std::string modeldir, 
@@ -35,14 +36,14 @@ Recognizer::Recognizer(AudioSource *as,
         
         if (config_ == NULL)
         {
-            fprintf(stderr, "Failed to create config object, see log for details\n");
-            //return -1;
+            throw init_config_error();
+            
         }
 
         ps_ = ps_init(config_);
         if (ps_ == NULL) 
         {
-            fprintf(stderr, "Failed to create recognizer, see log for details\n");
+            throw init_ps_decoder_error();
         }
 
         init_state_ = true;
@@ -64,7 +65,7 @@ void Recognizer::startUtt()
 {
     if (ps_start_utt(ps_) < 0)
     {
-        E_FATAL("Failed to start utterance\n");
+        throw start_utt_error();
     }
 }
 
