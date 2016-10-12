@@ -49,3 +49,62 @@ void AudioSource::closeDevice()
 {
     ad_close(ad_);
 }
+
+
+bool AudioSource::check_wav_header(char *header, int expected_sr)
+{
+    int sr;
+
+    if (header[34] != 0x10) {
+        E_ERROR("Input audio file has [%d] bits per sample instead of 16\n", header[34]);
+        return false;
+    }
+    if (header[20] != 0x1) {
+        E_ERROR("Input audio file has compression [%d] and not required PCM\n", header[20]);
+        return false;
+    }
+    if (header[22] != 0x1) {
+        E_ERROR("Input audio file has [%d] channels, expected single channel mono\n", header[22]);
+        return false;
+    }
+    sr = ((header[24] & 0xFF) | ((header[25] & 0xFF) << 8) | ((header[26] & 0xFF) << 16) | ((header[27] & 0xFF) << 24));
+    if (sr != expected_sr) {
+        E_ERROR("Input audio file has sample rate [%d], but decoder expects [%d]\n", sr, expected_sr);
+        return false;
+    }
+    return true;
+}
+
+void AudioSource::openFile(std::string fname)
+{
+    
+    if ((rawfd_ = fopen(fname.c_str(), "rb")) == NULL) {
+        E_FATAL_SYSTEM("Failed to open file '%s' for reading",
+                       fname.c_str());
+    }
+}
+
+void AudioSource::checkFile(std::string fname)
+{
+	   if (strlen(fname.c_str()) > 4 && strcmp(fname.c_str() + strlen(fname.c_str()) - 4, ".wav") == 0) 
+    {
+        char waveheader[44];
+		fread(waveheader, 1, 44, rawfd_);
+		if (!check_wav_header(waveheader, 16000))
+		{
+    	    E_FATAL("Failed to process file '%s' due to format mismatch.\n", fname.c_str());
+		}
+    }
+
+    if (strlen(fname.c_str()) > 4 && strcmp(fname.c_str() + strlen(fname.c_str()) - 4, ".mp3") == 0) 
+    {
+	E_FATAL("Can not decode mp3 files, convert input file to WAV 16kHz 16-bit mono before decoding.\n");
+    }
+}
+
+bool AudioSource::readFile()
+{
+	k_ = fread(buf_, sizeof(int16), 2048, rawfd_);
+	return (k_>0);
+    
+}
