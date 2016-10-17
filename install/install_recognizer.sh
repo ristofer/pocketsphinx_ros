@@ -13,7 +13,7 @@ install_files="$install_path"/files;
 # - - - - - - I N S T A L L - - - - - -
 # # # # # # # # # # # # # # # # # # # #
 
-roscd;
+roscd ;
 
 
 ## Download and install dependences
