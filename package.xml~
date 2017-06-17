@@ -65,7 +65,9 @@
 
 
     <!-- === bender depends === -->
-
+    <depend>uchile_msgs</depend>
+    <depend>uchile_srvs</depend>
+    <depend>uchile_util</depend>
 
     <export>
     </export>

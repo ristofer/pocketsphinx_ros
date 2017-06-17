@@ -1,0 +1,153 @@
+#JSGF V1.0;
+
+grammar sentence;
+
+
+public <sentence> = <questions> | <noise> [<noise>] [<noise>];
+
+<questions> = ( <AQ> | <COQ> | <OQ> | <PQ>);
+
+
+/* ------------- Arena Questions   -------------
+Where is the shelf?
+Where is the plant?
+How many chairs are in the dining room?
+*/
+
+<AQ> = <AQ1> | <AQ2> ;
+
+<AQ1> = <where> IS THE <bigobject>  ;
+<AQ2> = <how> MANY <category_bigobject>  ARE IN THE <bedrooms> ;
+
+
+/*   ------------- Crowd - Operator Questions   -------------
+How many people are in the crowd?
+How many children are in the crowd
+How many women | men are in the crowd
+How many people  waving | raising arms are in the crowd
+How many people  standing | sitting | lying are in the crowd
+
+ How old do you think I am?
+The sitting person was a man or woman?
+Am I a man or a woman?
+
+New questions 
+TELL ME THE NUMBER OF MALES IN THE CROWD
+TELL ME THE NUMBER OF ADULTS IN THE CROWD
+
+WHAT IS THE NUMBER OF MALE AND WOMEN PEOPLE
+
+WHAT IS THE NUMBER OF WOMEN PEOPLE
+WHAT IS THE NUMBER OF CHILDREN PEOPLE
+what is the size of the crowd
+*/
+
+<COQ> = <COQ1> | <COQ2> | <COQ3> | <COQ4> | <COQ5> | <COQ6> | <COQ7> | <COQ8> | <COQ9> | <COQ10> | <COQ11> | <COQ12> | <COQ13>| <COQ14>;
+
+<COQ1> = <how> MANY PEOPLE ARE IN THE CROWD ;
+<COQ2> = <how> MANY <person_phase> ARE IN THE CROWD ;
+<COQ3> = <how> MANY <person_gender> ARE IN THE CROWD  ;
+<COQ4> = <how> MANY PEOPLE <person_moves> ARMS ARE IN THE CROWD ;
+<COQ5> = <how> MANY PEOPLE <person_postures> ARE IN THE CROWD  ;
+
+<COQ6> = <how> OLD DO YOU THINK I AM ;
+<COQ7> = <the> <person_postures>  PERSON WAS A MAN OR WOMAN ;
+<COQ8> = AM I A MAN OR A WOMAN  ;
+
+<COQ9> = TELL ME THE NUMBER OF <person_gender> IN <the> CROWD ;
+<COQ10> = TELL ME THE NUMBER OF <person_phase> IN <the> CROWD ;
+<COQ11> = <what> <is> <the> <number> <of> <person_gender> AND <person_gender> PEOPLE ;
+<COQ12> = <what> <is> <the> <number> <of> <person_gender> PEOPLE ;
+<COQ13> = <what> <is> <the> <number> <of> <person_gender> PEOPLE ;
+<COQ14> = <what> <is> <the> SIZE <of> THE CROWD ;
+
+<person_phase> = CHILDREN | ADULTS ;
+<person_gender> = WOMEN | MEN | MALE | MALES ;
+<person_moves> = WAVING | RAISING ;
+<person_postures> = STANDING | SITTING | LYING ;
+
+/*    -------------   Object Questions  ---------------
+What's the smallest food?
+What's the lightest drink?
+Where can I  nd the tray?
+Where can I  nd the beer?
+What's the color of the shampoo?
+What's the color of the sponge?
+What objects are in the closet?
+How many are they?
+Do they belong to the same category?
+
+NEW QUESTIONS
+
+What objects are stored in the kitchencounter?
+TO WICH CATEGORY BELONG THE BEER
+where is the beer?
+*/
+<OQ> = <OQ1> | <OQ2> | <OQ3> | <OQ4> | <OQ5> | <OQ6> | <OQ7> | <OQ8> | <OQ9> | <OQ10>| <OQ11>;
+
+<OQ1> = <what> <is> <the> <object_description> <category_object> ;
+<OQ2> = <where> CAN I FIND <the> <smallobject> ;
+<OQ3> = <where> [CAN] <is> <smallobject> ;
+<OQ4> = <what> <is> <the> COLOR OF <the> <smallobject>  ;
+<OQ5> = <what> OBJECTS ARE IN <the> <manipulationplace> ;
+
+<OQ6> = <how> MANY  ARE THEY  ;
+<OQ7> = <do> THEY BELONG TO <the> SAME CATEGORY ;
+<OQ8> = <what> OBJECT <are> STORES IN <the> SAME CATEGORY;
+<OQ9> = TO WICH CATEGORY BELONG <the> <smallobject>;
+<OQ10> =<do> <the> <smallobject> AND <smallobject> BELONG TO THE SAME CATEGORY;
+<OQ11> =<where> <is> <the> <smallobject>;
+<object_description> = SMALLEST | LIGHTEST ;
+
+/*    -------------  Predefined Questions ---------------
+What day is today?
+What is your name?
+What is your team's name?
+What time is it?
+In which year was RoboCup@Home founded?
+What was the last question?
+
+What is the capital of japan
+*/
+<PQ> = <PQ1> | <PQ2> | <PQ3> | <PQ4> | <PQ5> |<PQ6>;
+
+<PQ1> = <what> DAY <is> TODAY ;
+<PQ2> = <what> <is> YOUR NAME ;
+<PQ3> = <what> <is> YOUR TEAM NAME;
+<PQ2> = <what> TIME <is> IT ;
+<PQ4> = IN <which> YEAR WAS ROBOCUP FOUNDED ;
+<PQ5> = <what> WAS <the> LAST QUESTION ;
+<PQ6> = <what> <is> THE CAPITAL OF JAPAN;
+
+
+/*    -------------  ARENA INFORMATION --------------- */
+<bedrooms> = KITCHEN | DINING ROOM  ;
+
+<manipulationplace> = KITCHEN TABLE| KITCHEN COUNTER | CUPBOARD | BAR | COUCHTABLE | DINNERTABLE  ;
+
+<bigobject> = SOFA | (LEFT|RIGHT) BEDSIDE TABLE | DESK | BED | BOOKCASE | SHELF| PLANT | <manipulationplace>;
+<category_bigobject>  = CHAIRS | TABLE ;
+
+<smallobject> = GREENTEA |  PAPAYAMILK |  PUREMILK |  WATER | ORANGEJUICE | BEER | BISCUITS | BUBBLEGUM | CHOCOLATES | TOMATOCHIPS | BARBECUECHIPS | HONEYCHIP | COCONUTCEREALS | COCOBALLS | EGGSTARS | GRAMSOUP | BEANSAUCE | APPLE | LEMON | PEAR | SPONGE | TOILETPAPER | SOAP | LOTION | TOOTHPASTE | CLOTH | BOWL | PLATE | BEER | TRAY;
+
+<category_object> =  DRINK | FOOD | OBJECTS;
+
+/* -------------------Last question ---------------*/
+
+
+/*    -------------  GRAMMAR --------------- */
+<how> = HOW ;
+<what> = WHAT ;
+<where> = WHERE ;
+<when> = WHEN ;
+<which> = WHICH ;
+<who> = WHO ;
+<do> = DO ;
+<is> = IS ;
+<the> = THE ;
+<are> = ARE ;
+<number>= NUMBER ;
+<of>= OF ;
+
+<noise> = ( HUM | WA | SH | CH | S | MM ) ;
+

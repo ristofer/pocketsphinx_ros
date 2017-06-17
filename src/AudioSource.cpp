@@ -1,4 +1,4 @@
-#include "pocketsphinx_ros/AudioSource.h"
+#include "uchile_speech_pocketsphinx/AudioSource.h"
 
 
 AudioSource::AudioSource(){}
@@ -104,7 +104,15 @@ void AudioSource::checkFile(std::string fname)
 
 bool AudioSource::readFile()
 {
+	if(rawfd_==NULL){
+		throw read_file_error();
+	}
 	k_ = fread(buf_, sizeof(int16), 2048, rawfd_);
 	return (k_>0);
     
+}
+
+void AudioSource::closeFile()
+{
+	fclose(rawfd_);
 }

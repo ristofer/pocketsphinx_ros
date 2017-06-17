@@ -1,0 +1,56 @@
+#JSGF V1.0;
+
+grammar sentence;
+
+
+public <sentence> = <fetch_object_from_place> | <noise> [<noise>] [<noise>];
+
+
+<fetch_object_from_place> = <go> to the <place> <grasp> the <object> and bring it to me ;
+
+
+
+
+<noise> =  hum | wa | sh | ch | s | mm | pu | tu | ss | huh | naa ;
+
+
+
+
+
+<place> = kitchen table | kitchen counter | cupboard | bar | couchtable | dinnertable | sofa | (left|right) bedside table | desk | bed | bookcase ;
+
+
+<object> = greentea |  papayamilk |  puremilk |  water | orangejuice | beer | biscuits | bubblegum | chocolates | tomatochips | barbecuechips | honeychip | coconutcereals | cocoballs | eggstars | gramsoup | beansauce | apple | lemon | pear | sponge | toiletpaper | soap | lotion | toothpaste | cloth | bowl | plate | tray;
+
+<category_object> =  drink | food | objects;
+
+
+
+
+
+
+<go> = (go | navigate | reach | arrive | move | drive | enter | get into | visit | acces | approach) ;
+
+<grasp> = (grasp | get | grab | grip | catch | grapple | hold | hook | take) ;
+
+<bring> = (bring | carry | deliver | return | transport | give | fetch) ;
+
+<find> = (find | look | search | detect | encounter | locate | identify | meet | notice | spot | recognize | sight) ;
+
+<put> = (put | leave | lay | place | settle | set | deposit | situate | rest | locate | allocate | stow) ;
+
+<say> = (say | speak | tell | talk) ;
+
+<ask> = (ask | request) ;
+
+
+//-->> key="<go>" value="go"
+//-->> key="<grasp>"  value="grasp"
+//-->> key="<bring>" value="bring"
+//-->> key="<find>"  value="find"
+
+
+//-->> key="<put>" value="put"
+//-->> key="<say>"  value="say"
+//-->> key="<ask>" value="ask"
+

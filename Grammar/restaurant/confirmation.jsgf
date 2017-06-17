@@ -1,0 +1,20 @@
+#JSGF V1.0;
+grammar confirmation;
+
+
+public <confirmation> = (<robot> (<yes_or_no>| <abort>) | <noise> [<noise>] [<noise>]);
+
+<robot> = (BENDER);
+
+// Se usan variantes para cada confirmacion, asi se tiene un modelo mas robusto.
+
+<yes_or_no> = (<yes> | <no> );
+<yes> = (YES | YEP | YIS | YAS );
+<no> = (NO | NOPE );
+<abort> = (ABORT | ABORTED | CANCEL);
+
+//-->> key="<yes>" value="yes"
+//-->> key="<no>"  value="no"
+//-->> key="<abort>" value="abort"
+
+<noise> = ( HUM | WA | SH | CH | S | MM | PU | TU | SS | HUH | NAA );

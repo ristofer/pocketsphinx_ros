@@ -1,0 +1,56 @@
+#JSGF V1.0;
+
+grammar sentence;
+
+
+public <sentence> = GO TO THE (<location>|<place>) |<fetch_object_from_place> | <noise> [<noise>] [<noise>];
+
+
+<fetch_object_from_place> = GO TO THE <place> GRASP THE <object> AND BRING IT TO ME ;
+
+
+
+
+<noise> =  HUM | WA | SH | CH | S | MM | PU | TU | SS | HUH | NAA ;
+
+
+
+<location> = LIVING ROOM | KITCHEN | HALLWAY | BEDROOM;
+
+<place> = KITCHEN TABLE | DINNER TABLE | TV ;
+
+
+<object> = COFFEE | MILK | PRINGLES;
+
+<category_object> =  DRINK | FOOD | OBJECTS;
+
+
+
+
+
+
+<go> = (GO | NAVIGATE | REACH | ARRIVE | MOVE | DRIVE | ENTER | GET INTO | VISIT | ACCES | APPROACH) ;
+
+<grasp> = (GRASP | GET | GRAB | GRIP | CATCH | GRAPPLE | HOLD | HOOK | TAKE) ;
+
+<bring> = (BRING | CARRY | DELIVER | RETURN | TRANSPORT | GIVE | FETCH) ;
+
+<find> = (FIND | LOOK | SEARCH | DETECT | ENCOUNTER | LOCATE | IDENTIFY | MEET | NOTICE | SPOT | RECOGNIZE | SIGHT) ;
+
+<put> = (PUT | LEAVE | LAY | PLACE | SETTLE | SET | DEPOSIT | SITUATE | REST | LOCATE | ALLOCATE | STOW) ;
+
+<say> = (SAY | SPEAK | TELL | TALK) ;
+
+<ask> = (ASK | REQUEST) ;
+
+
+//-->> key="<go>" value="GO"
+//-->> key="<grasp>"  value="GRASP"
+//-->> key="<bring>" value="BRING"
+//-->> key="<find>"  value="FIND"
+
+
+//-->> key="<put>" value="PUT"
+//-->> key="<say>"  value="SAY"
+//-->> key="<ask>" value="ASK"
+

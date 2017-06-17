@@ -1,6 +1,6 @@
-#include "pocketsphinx_ros/Recognizer.h"
+#include "uchile_speech_pocketsphinx/Recognizer.h"
 #include <boost/lexical_cast.hpp>
-#include "pocketsphinx_ros/Exceptions.h"
+#include "uchile_speech_pocketsphinx/Exceptions.h"
 
 Recognizer::Recognizer(AudioSource *as, 
            std::string modeldir, 
@@ -108,14 +108,29 @@ void Recognizer::initDevice(std::string device)
     as_->startRec();
 }
 
+void Recognizer::initFile(std::string fname)
+{
+    as_->openFile(fname);
+    as_->checkFile(fname);
+}
+
 void Recognizer::readAudio()
 {
     as_->read();
 }
 
+bool Recognizer::readAudioFromFile()
+{
+    as_->readFile();
+}
+
 void Recognizer::terminateDevice()
 {
     as_->closeDevice();
+}
+void Recognizer::terminateFile()
+{
+    as_->closeFile();
 }
 
 void Recognizer::setDict(const std::string& dictdir)
@@ -166,4 +181,11 @@ std::string Recognizer::getSearch()
      }
      return std::string(search_name);
 
+}
+
+int Recognizer::getProb()
+{
+    int prob;
+    prob = ps_get_prob(ps_);
+    return prob;
 }

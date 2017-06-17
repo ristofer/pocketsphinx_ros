@@ -1,0 +1,37 @@
+
+## microphone selection
+## ----------------------------------------------------------------------------
+# to find a list of currently available microphones, run the following:
+# > pacmd dump | grep "alsa_input" | cut -d' ' -f2 | uniq
+#
+
+# official microphone (m-audio)
+#mic_name: "alsa_input.usb-M-Audio_Producer_USB-00-USB.analog-stereo"
+
+# sample logitech camera's microphone 
+#mic_name: "alsa_input.usb-046d_0825_1F95B220-02-U0x46d0x825.analog-mono"
+
+
+
+## recognizer parameters
+
+# en-us-adapt
+hmmdir: "/usr/local/share/pocketsphinx/model/en-us/en-us"
+
+
+
+## OLD!. but it could be useful in the future
+# available_dictionaries:
+#     confirmation: ["conf/confirmation",'fsg']
+#     go_on: ["commands/go_on",'fsg']
+#     name: ["general/names/name_dic",'fsg']
+#     drink: ["general/drinks/drinks_dic",'fsg']
+#     object: ["general/objects/objects_dic",'fsg']
+#     move_order: ["nav_order/move",'fsg']
+#     gpsr: ["Sta[ge1/gpsr/gpsr",'fsg']
+#     gpsr_c1: ["Stage1/gpsr/Stage1gpsr",'fsg']
+#     gpsr_c2: ["Stage1/gpsr/Stage2gpsr",'fsg']
+#     wdys: ["Stage1/wdys/wdys",'fsg']
+#     quest: ["Stage1/sradt/questions",'fsg']
+#     questlm: ["Stage1/sradt/questions",'lm']
+#     s2_wakeme: ["Stage2/WakeMeUp/wakemedicc",'fsg']

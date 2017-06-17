@@ -1,0 +1,146 @@
+#JSGF V1.0;
+
+grammar sentence;
+
+public <sentence> =  [<vocative>] [<courtesy>] (<complex_1> | <complex_2> | <complex_3> | <complex_4>) | <noise> [<noise>] [<noise>];
+
+
+
+<complex_1> = <actions> [[AND]<actions>] [[AND]<actions>] ;
+<complex_2> = <actions> [AND] <double_actions> ; 
+<complex_3> = <double_actions> [AND <actions>] ;
+<complex_4> = <triple_actions> ;
+
+
+
+
+
+
+
+
+
+
+
+
+<actions> = <find_person_in_place> | <find_object_in_place> | <grasp_object_from_place> | <tell_something> | <go_place> | <answer_question> | 
+			<complex_actions> | <follow_person_from_place>;
+
+<double_actions> = <find_person_and_guide> | <grasp_and_deliver> | <find_person_and_follow> | <go_place_and_find> ;
+
+
+<triple_actions> = <grasp_and_deliver_to_person> AND <follow_her> | <grasp_and_deliver_to_person> AND <guide_her_to_place>;
+
+<complex_actions> = <guide_person_from_place_to_place> ;
+
+<find_person_and_guide> = <find_person_in_place> [AND] <guide_her_to_place> ;
+<find_person_and_follow> = <find_person_in_place> [AND] <follow_her> ;
+
+<grasp_and_deliver> = <grasp_and_deliver_to_place> | <grasp_and_deliver_to_person> ;
+<grasp_and_deliver_to_place> = <grasp_object_from_place> [AND] <put_it_in_place> ;
+<grasp_and_deliver_to_person> = <grasp_object_from_place> [AND] (<give_it_to_person_in_place> | <give_it> TO ME)  ;
+
+
+
+
+
+
+
+<courtesy> = [COULD YOU] [PLEASE] ;
+<vocative> = ROBOT | BENDER ;
+
+<find_person> = <find> <person> ;
+<find_person_in_place> = <find_person> IN [THE] <place> ;
+<find_object> = <find> <object> ;
+<find_object_in_place> = <find_object> IN [THE] <place> ;
+
+<go_place_and_find> = <go_place> <find_person> ;
+
+
+<go_place> = <go> TO THE <place>;
+
+<grasp_object> = <grasp> [THE] <object>;
+<grasp_object_from_place> = <grasp_object> FROM [THE] <place> ; 
+
+<give_object> = <give> <object> ;
+<give_it> = <give> IT ;
+<give_it_to_person> = <give_it> TO <person>;
+<give_it_to_person_in_place> = <give_it_to_person> IN [THE] <place> ;
+<give_object_to_person> = <give_object> TO <person> ;
+<give_object_to_person_in_place> = <give_object_to_person> IN [THE] <place>;
+
+<follow_her> = <follow> (HIM|HER);
+<follow_person> = <follow> <person>;
+<follow_person_from_place> = <follow_person> (FROM | WHO IS (IN | AT)) [THE] <place> ;
+
+<put_object> = <put> [A] <object>;
+<put_it_in_place> = <put> IT ON [THE] <place>;
+<put_object_in_place> = <put_object> ON [THE] <place>;
+
+<answer_question> = <answer> [A] <question> ;
+<tell_something> = <tell> <something_to_tell>;
+
+<guide_him_or_her> = <guide> (HIM|HER) ;
+<guide_her_to_place> = <guide_him_or_her> TO [THE] <place> ; 
+<guide_person> = <guide> <person> ;
+<guide_person_to_place> = <guide_person> TO [THE] <place> ;
+<guide_person_from_place> = <guide_person> (FROM | WHO IS IN) [THE] <place> ;
+<guide_person_from_place_to_place> = <guide_person_from_place> TO [THE] <place> ; 
+
+<noise> =  HUM | WA | SH | CH | S | MM | PU | TU | SS | HUH | NAA ;
+
+
+
+
+
+<place> = KITCHEN TABLE | KITCHEN COUNTER | CUPBOARD | BAR | COUCHTABLE | DINING TABLE | SOFA | (LEFT|RIGHT) BEDSIDE TABLE | DESK | BED | BOOKCASE |
+		  DRAWER | TV STAND | BOOKCASE | SINK | BEDSIDE | LIVING SHELF | LIVING TABLE | SIDESHELF | CABINET | <location>;
+
+<location> = KITCHEN | EXIT | DINING ROOM | CORRIDOR | OFFICE;
+
+
+<object> =  WATER | BEER | BISQUITS | BUBBLEGUM | CHOCOLATES  | COCONUT CEREALS | APPLE | LEMON | PEAR | SPONGE | TOILET PAPER | SOAP | LOTION | TOOTHPASTE | CLOTH | BOWL | PLATE | TRAY | PRINGLES | CHIPS | TEA | BABY SWEETS | PRETZELS | COCONUT MILK | PAPRIKA | SHAMPOO;
+
+
+<category_object> =  DRINK | FOOD | OBJECTS;
+
+<go> = (GO | NAVIGATE | REACH | MOVE | DRIVE | ENTER | GET INTO | ACCES | APPROACH) ;
+
+<grasp> = (GRASP | GET | GRAB | GRIP | GRAPPLE | HOLD | HOOK | TAKE | PICK UP) ;
+
+<give> = (BRING | CARRY | DELIVER | RETURN | TRANSPORT | GIVE | FETCH) ;
+
+<find> = (FIND | LOOK FOR| SEARCH | LOCATE | SIGHT) ;
+
+<put> = (PUT | LEAVE | LAY | PLACE | DEPOSIT | LOCATE | STOW) ;
+
+<tell> = (SAY | SPEAK | TELL | TALK) ;
+
+<ask> = (ASK | REQUEST) ;
+
+<answer> = ANSWER;
+
+<question> = QUESTION ;
+
+<person> = ETHAN | AVA | MASON | ALEXANDER | EMMA | LIAM | CHARLOTTE | SOPHIA | DANIEL | <gesture_person> | ISABELLA | NOAH | ANGEL | JAMES;
+
+<gesture_person> = THE <gesture> PERSON ;
+
+<gesture> = WAVING | RISING (RIGHT|LEFT) ARM | POINTING (RIGHT|LEFT);
+
+<something_to_tell> = THE DAY OF THE WEEK | THE TIME | SOMETHING ABOUT YOURSELF | YOUR NAME | A JOKE | WHAT DAY IS TOMORROW;
+
+<follow> = FOLLOW ;
+
+<guide> = GUIDE | TAKE | ESCORT ;
+
+
+//-->> key="<go>" value="GO"
+//-->> key="<grasp>"  value="GRASP"
+//-->> key="<bring>" value="BRING"
+//-->> key="<find>"  value="FIND"
+
+
+//-->> key="<put>" value="PUT"
+//-->> key="<say>"  value="SAY"
+//-->> key="<ask>" value="ASK"
+

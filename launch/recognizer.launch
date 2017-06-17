@@ -1,16 +1,14 @@
 <launch>
-    <arg name="package" default="pocketsphinx_ros"/>
-    <arg name="mic_name"    default="alsa_input.usb-M-Audio_Producer_USB-00-USB.analog-stereo"/> <!-- Microfono de atras (m-audio)-->
-    <arg name="hmmdir"             default="/usr/local/share/pocketsphinx/model/en-us/en-us"/> <!-- en-us-adapt -->
-    <arg name="packagedir" default="$(find pocketsphinx_ros)"/>
+	<arg name="mic_name"         default="alsa_input.usb-M-Audio_Producer_USB-00-USB.analog-stereo" />
+	<arg name="recorder_audio" default="true"/>
 
-    <!-- Recognizer -->
-    <node name="recognizer" pkg="$(arg package)" type="RecognizerROS"  respawn="false" output="screen">
-        <rosparam file="$(find pocketsphinx_ros)/config/recognition_params.yaml" command="load"/>
-        <param name="mic_name"    value="$(arg mic_name)"/>
-        <param name="hmmdir"           value="$(arg hmmdir)"/>
-        <param name="packagedir"    value="$(arg packagedir)"/>
+    <node 
+        name="recognizer" pkg="uchile_speech_pocketsphinx" type="recognizer_ros" ns="/bender/speech"
+        respawn="false" output="screen">
+        <param name="mic_name" value="$(arg mic_name)"/>
+        <rosparam file="$(find uchile_speech_pocketsphinx)/config/recognizer.yaml" command="load"/>
     </node>
 
+	<node if="$(arg recorder_audio)" name="recorder_audio" pkg="uchile_speech_pocketsphinx" type="recorder.py" ns="/bender/speech" />
 
 </launch>

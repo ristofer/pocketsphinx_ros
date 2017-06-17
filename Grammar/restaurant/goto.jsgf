@@ -1,0 +1,30 @@
+#JSGF V1.0;
+grammar sentence;
+
+// Operation Phase : Hearing order
+
+public <sentence> = (<robot> <command>) | <noise> [<noise>] [<noise>]  | ( [<robot>] <position_answer>);
+
+<robot> = (BENDER);
+
+// Se usan variantes para cada confirmación, así se tiene un modelo más robusto.
+
+<command> = ( <go_sentence> | <abort>);
+
+<go_sentence> = (<go> [TO | TO THE | TOTHE] [<position>]);
+
+<abort> = (ABORT | ABORTED | CANCEL);
+
+<go> = (GO | NAVIGATE | ENTER | GOTO);
+
+<position> = ( <place> | <location> [<number>] | <object> );
+
+<place> = (HALLWAY | BEDROOM | KITCHEN | LIVINGROOM | DOOR | OFFICE | HOME | LAB | LABORATORY);
+<location> = (KITCHENTABLE | CUPBOARD | BAR | DINNERTABLE | SOFA | DESK | BED | BOOKCASE |  TABLE | TELEVISION | TV | COMPUTER);
+<object> =  (WATER | BOWL | PLATE | TRAY);
+<number> = (ONE | TWO | THREE | FOUR | FIVE); 
+
+<position_answer> =  [TO | TO THE | TOTHE] <position>;
+
+<noise> = ( HUM | WA | SH | CH | S | MM | PU | TU | SS | HUH | NAA  );
+

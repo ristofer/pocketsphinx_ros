@@ -1,0 +1,39 @@
+#JSGF V1.0;
+grammar sentence;
+
+//Guide Phase : Hearing order
+
+public <sentence> = <robot> <command> | <noise> [<noise>] [<noise>];
+
+<robot> = (BENDER);
+
+<command> = (<save_sentence> | <delete_sentence> | <follow_sentence> | <finish> | <abort>);
+
+<finish> = (FINISH [THE] [TEST | PHASE | STAGE]);
+
+<follow_sentence> = ( FOLLOW | FOLLOWME | FOLLOW ME | GO ON | CONTINUE | STOP | MOVE);
+
+<delete_sentence> = <delete>  [THE] [ OBJECT | <point> ] [ <position>];
+
+<save_sentence> = ( <save1> | <save2> );
+
+<save1> =  ((THIS | THERE ) (IS) [THE | THA | A | AN] ( <position> ) [<located>]);
+<save2> =  (SAVE ) [<point>] [ <position> [<located>] | <save1> ];
+
+<abort> = (ABORT | ABORTED | CANCEL);
+
+<delete> = (FORGET);
+
+<located> = ([ON | IN | TO | AT ] [YOUR | THE ] (LEFT | RIGHT | FRONT OF YOU | FRONTOF YOU | FRONT OFYOU)) ;
+<point> = (POSITION | LOCATION | POINT);
+
+<position> =  (<place> | <location> [<number>] | <object>);
+
+<place> = (HALLWAY | BEDROOM | KITCHEN | LIVINGROOM | DOOR | OFFICE | HOME | LAB | LABORATORY);
+<location> = (KITCHENTABLE | CUPBOARD | BAR | DINNERTABLE | SOFA | DESK | BED | BOOKCASE |  TABLE | TELEVISION | TV | COMPUTER);
+<object> =  (WATER | BOWL | PLATE | TRAY);
+<number> = (ONE | TWO | THREE | FOUR | FIVE); 
+
+
+<noise> = ( HUM | WA | SH | CH | S | MM | PU | TU | SS | HUH | NAA  );
+

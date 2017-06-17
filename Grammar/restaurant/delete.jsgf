@@ -1,0 +1,31 @@
+#JSGF V1.0;
+grammar sentence;
+
+//Guide Phase : Hearing order
+
+public <sentence> = (<robot> <command> | <noise> [<noise>] [<noise>] |  [<robot>] <position_answer>);
+
+<robot> = (BENDER);
+
+<command> = (<delete_sentence> | <abort>);
+
+<delete_sentence> = <delete>  [THE] [ OBJECT | <point> ] [ <position>];
+
+<abort> = (ABORT | ABORTED | CANCEL);
+
+<delete> = (FORGET) ;
+
+<point> = (POSITION | LOCATION | POINT);
+
+
+<position> =  (<place> | <location> [<number>] | <object>) ;
+
+<place> = (HALLWAY | BEDROOM | KITCHEN | LIVINGROOM | DOOR | OFFICE | HOME | LAB | LABORATORY);
+<location> = (KITCHENTABLE | CUPBOARD | BAR | DINNERTABLE | SOFA | DESK | BED | BOOKCASE |  TABLE | TELEVISION | TV | COMPUTER);
+<object> =  (WATER | BOWL | PLATE | TRAY);
+<number> = (ONE | TWO | THREE | FOUR | FIVE); 
+
+
+<position_answer> =  <position>;
+
+<noise> = ( HUM | WA | SH | CH | S | MM | PU | TU | SS | HUH | NAA  );
